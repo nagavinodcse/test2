@@ -5,6 +5,8 @@ import "@syncfusion/ej2-base/styles/material.css";
 import "@syncfusion/ej2-react-navigations/styles/material.css";
 import "@syncfusion/ej2-inputs/styles/material.css";
 import "@syncfusion/ej2-buttons/styles/material.css";
+import { enableRipple } from '@syncfusion/ej2-base';
+enableRipple(true);
 const OSTypes = ({showOSDiv}) =>{
     let os = [
             { id: 1, name: 'RS1', hasChild: true, expanded: true },
@@ -14,11 +16,12 @@ const OSTypes = ({showOSDiv}) =>{
             { id: 5, pid: 2, name: 'x86',isChecked:false },
             { id: 6, pid: 2, name: 'x64', isChecked: false },
         ];
-    const [operatingSystems,setOperatingSystems] = useState(os);
+    let field = { dataSource: os, id: 'id', parentID: 'pid', text: 'name', hasChildren: 'hasChild' };
+    const [operatingSystems,setOperatingSystems] = useState(field);
     const [isChecked,setIsChecked] = useState(true);
     return (showOSDiv) ?
         <div className="mt-3">
-            <TreeViewComponent fields={operatingSystems} showCheckBox={isChecked}/>);
+            <TreeViewComponent fields={operatingSystems} showCheckBox={isChecked}/>
         </div> : '';
 };
 const TestTypes = ({selectedOption}) => {
