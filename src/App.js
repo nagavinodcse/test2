@@ -2,7 +2,9 @@ import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Nav, Navbar} from "react-bootstrap";
 import TestRequest from "./TestRequest";
+import lodash from "lodash";
 
+window._ = lodash;
 function App() {
   return (
     <div className="App">

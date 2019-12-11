@@ -1,28 +1,49 @@
-import React, {Component,useState} from 'react';
-import {Accordion, Button, Card} from "react-bootstrap";
-import { TreeViewComponent } from '@syncfusion/ej2-react-navigations';
-import "@syncfusion/ej2-base/styles/material.css";
-import "@syncfusion/ej2-react-navigations/styles/material.css";
-import "@syncfusion/ej2-inputs/styles/material.css";
-import "@syncfusion/ej2-buttons/styles/material.css";
-import { enableRipple } from '@syncfusion/ej2-base';
-enableRipple(true);
-const OSTypes = ({showOSDiv}) =>{
-    let os = [
-            { id: 1, name: 'RS1', hasChild: true, expanded: true },
-            { id: 2, name: 'RS2', hasChild: true, expanded: true },
-            { id: 3, pid: 1, name: 'x86', isChecked: false },
-            { id: 4, pid: 1, name: 'x64',isChecked:false },
-            { id: 5, pid: 2, name: 'x86',isChecked:false },
-            { id: 6, pid: 2, name: 'x64', isChecked: false },
-        ];
-    let field = { dataSource: os, id: 'id', parentID: 'pid', text: 'name', hasChildren: 'hasChild' };
-    const [operatingSystems,setOperatingSystems] = useState(field);
-    const [isChecked,setIsChecked] = useState(true);
-    return (showOSDiv) ?
-        <div className="mt-3">
-            <TreeViewComponent fields={operatingSystems} showCheckBox={isChecked}/>
-        </div> : '';
+import React, {Component, useState} from 'react';
+import {Accordion, Button, Card,Form} from "react-bootstrap";
+import _filter from "lodash/filter";
+import _groupBy from "lodash/groupBy";
+class OSTypes extends Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            operatingSystems:[
+                {id: 1, pid:0, name: 'RS1'},
+                {id: 2, pid:0, name: 'RS2'},
+                {id: 3, pid: 1, name: 'x86'},
+                {id: 4, pid: 1, name: 'x64'},
+                {id: 5, pid: 2, name: 'x86'},
+                {id: 6, pid: 2, name: 'x64'},
+            ],
+            filteredOS:[],
+            childOS:[]
+        };
+    }
+    componentDidMount() {
+        this.filterOperatingSystems();
+    }
+
+    filterOperatingSystems = () => {
+        let filtered = _filter(this.state.operatingSystems,(os=>os.pid<1));
+        let child = _groupBy(_filter(this.state.operatingSystems,(os=>os.pid>0)),'pid');
+        this.setState({filteredOS:filtered,childOS:child});
+    };
+    render() {
+        const {showOSDiv} = this.props;
+        return showOSDiv ?
+        <div className="mt-3 row">
+            {this.state.filteredOS.map((os,k) =>
+                 <div className="col-sm-4">
+                     <h3>{os.name}</h3>
+                     {
+                         this.state.childOS[os.id].map(version=>
+                         <Form.Check custom type="checkbox" id={`custom-${version.name}-${version.id}`} label={`${version.name}`}/>
+                         )
+                     }
+                 </div>
+            )}
+        </div>
+        : '';
+    }
 };
 const TestTypes = ({selectedOption}) => {
     const [showOSDiv, setOSDiv] = useState(false);
@@ -34,7 +55,7 @@ const TestTypes = ({selectedOption}) => {
                     <Accordion.Toggle as={Card.Header} eventKey="0">&gt;&gt; WSH </Accordion.Toggle>
                     <Accordion.Collapse eventKey="0">
                         <Card.Body>
-                            <a href="#" onClick={()=>setOSDiv(true)}>Select an Operating System</a>
+                            <a href="#href" onClick={(e)=>{e.preventDefault();setOSDiv(true);}} className="text-white text-decoration-none">Select an Operating System</a>
                             <OSTypes showOSDiv={showOSDiv}/>
                         </Card.Body>
                     </Accordion.Collapse>
@@ -50,12 +71,11 @@ const TestTypes = ({selectedOption}) => {
                     </Card.Body>
                     </Accordion.Collapse>
                 </Card>
-                {/*<OSTypes showOSDiv={showOSDiv}/>*/}
             </Accordion>
         </div> : '';
 };
 
-class TestRequest extends Component {
+export default class TestRequest extends Component {
     state = {
         selectedOption: ''
     };
@@ -77,6 +97,4 @@ class TestRequest extends Component {
             </div>
         );
     }
-}
-
-export default TestRequest;
+};
