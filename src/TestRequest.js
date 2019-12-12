@@ -1,7 +1,8 @@
-import React, {Component, useState} from 'react';
-import {Accordion, Button, Card,Form} from "react-bootstrap";
+import React, {Component} from 'react';
+import {Accordion, Button, Card, Form} from "react-bootstrap";
 import _filter from "lodash/filter";
 import _groupBy from "lodash/groupBy";
+
 class OSTypes extends Component{
     constructor(props){
         super(props);
@@ -15,13 +16,24 @@ class OSTypes extends Component{
                 {id: 6, pid: 2, name: 'x64'},
             ],
             filteredOS:[],
-            childOS:[]
+            childOS:[],
+            selectedOS:[]
         };
     }
     componentDidMount() {
         this.filterOperatingSystems();
     }
-
+    updateSelectedOS = (e) => {
+        const operatingSystem = e.target.value;
+        const isChecked = e.target.checked;
+        if(isChecked) {
+            this.setState({selectedOS: [...this.state.selectedOS, operatingSystem]});
+            this.props.handleChange([...this.state.selectedOS, operatingSystem]);
+        }else {
+            this.setState({selectedOS: this.state.selectedOS.filter(item => item !== operatingSystem)});
+            this.props.handleChange(this.state.selectedOS.filter(item => item !== operatingSystem));
+        }
+    };
     filterOperatingSystems = () => {
         let filtered = _filter(this.state.operatingSystems,(os=>os.pid<1));
         let child = _groupBy(_filter(this.state.operatingSystems,(os=>os.pid>0)),'pid');
@@ -29,14 +41,14 @@ class OSTypes extends Component{
     };
     render() {
         const {showOSDiv} = this.props;
-        return showOSDiv ?
+        return showOSDiv !=='' ?
         <div className="mt-3 row">
             {this.state.filteredOS.map((os,k) =>
-                 <div className="col-sm-4">
+                 <div className="col-sm-4" key={k}>
                      <h3>{os.name}</h3>
                      {
                          this.state.childOS[os.id].map(version=>
-                         <Form.Check custom type="checkbox" id={`custom-${version.name}-${version.id}`} label={`${version.name}`}/>
+                         <Form.Check custom type="checkbox" key={version.id} value={`${this.props.testType}-${showOSDiv}-${os.name}-${version.name}`} onChange={this.updateSelectedOS} id={`custom-${version.name}-${version.id}`} label={`${version.name}`}/>
                          )
                      }
                  </div>
@@ -45,41 +57,58 @@ class OSTypes extends Component{
         : '';
     }
 };
-const TestTypes = ({selectedOption}) => {
-    const [showOSDiv, setOSDiv] = useState(false);
-    return selectedOption !== '' ?
-        <div>
-            <h1>{selectedOption}</h1>
-            <Accordion defaultActiveKey="" className="mt-3">
-                <Card bg="secondary">
-                    <Accordion.Toggle as={Card.Header} eventKey="0">&gt;&gt; WSH </Accordion.Toggle>
-                    <Accordion.Collapse eventKey="0">
-                        <Card.Body>
-                            <a href="#href" onClick={(e)=>{e.preventDefault();setOSDiv(true);}} className="text-white text-decoration-none">Select an Operating System</a>
-                            <OSTypes showOSDiv={showOSDiv}/>
-                        </Card.Body>
-                    </Accordion.Collapse>
-                </Card>
-                <Card bg="secondary">
-                    <Accordion.Toggle as={Card.Header} eventKey="1">&gt;&gt; Web Crawler </Accordion.Toggle>
-                    <Accordion.Collapse eventKey="1">
-                        <Card.Body>
-                        <ul>
-                            <li>Top 100 Sites</li>
-                            <li>Top 50 Sites</li>
-                        </ul>
-                    </Card.Body>
-                    </Accordion.Collapse>
-                </Card>
-            </Accordion>
-        </div> : '';
-};
+class TestTypes extends Component{
+    state = {
+        showOSDiv: ''
+    };
+    setOSDiv = value => {
+        this.setState({'showOSDiv':value});
+    };
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(prevProps.selectedOption !== this.props.selectedOption){
+            this.setState({'showOSDiv':''});
+        }
+    }
 
+    render() {
+        const {selectedOption} = this.props;
+        return selectedOption !== '' ?
+            <div>
+                <h1>{selectedOption}</h1>
+                <Accordion defaultActiveKey="" className="mt-3">
+                    <Card bg="secondary">
+                        <Accordion.Toggle as={Card.Header} onClick={()=>this.setOSDiv('')} eventKey="0">&gt;&gt; WSH </Accordion.Toggle>
+                        <Accordion.Collapse eventKey="0">
+                            <Card.Body>
+                                <a href="#href" onClick={(e)=>{e.preventDefault();this.setOSDiv("WSH");}} className="btn btn-primary">Select an Operating System</a>
+                                <OSTypes showOSDiv={this.state.showOSDiv} handleChange={this.props.handleChange} testType={selectedOption}/>
+                            </Card.Body>
+                        </Accordion.Collapse>
+                    </Card>
+                    <Card bg="secondary">
+                        <Accordion.Toggle as={Card.Header} onClick={()=>this.setOSDiv('')} eventKey="1">&gt;&gt; Web Crawler </Accordion.Toggle>
+                        <Accordion.Collapse eventKey="1">
+                            <Card.Body>
+                                <ul>
+                                    <li><button type="button" onClick={(e)=>{e.preventDefault();this.setOSDiv('WebCrawler');}} className="btn btn-link text-white">Top 100 Sites</button></li>
+                                    <li><button type="button" onClick={(e)=>{e.preventDefault();this.setOSDiv('WebCrawler');}} className="btn btn-link text-white">Top 50 Sites</button></li>
+                                </ul>
+                                <OSTypes showOSDiv={this.state.showOSDiv} handleChange={this.props.handleChange} testType={selectedOption}/>
+                            </Card.Body>
+                        </Accordion.Collapse>
+                    </Card>
+                </Accordion>
+            </div> : '';
+    }
+}
 export default class TestRequest extends Component {
     state = {
-        selectedOption: ''
+        selectedOption: '',
+        selectedOperatingSystems:[]
     };
-
+    handleOSChange = os => {
+        this.setState({selectedOperatingSystems:os});
+    };
     render() {
         return (
             <div className="mt-3 container">
@@ -90,7 +119,10 @@ export default class TestRequest extends Component {
                         <Button type="button" onClick={()=>this.setState({selectedOption:'Private'})} className="mr-3">Private</Button>
                         <Button type="button" onClick={()=>this.setState({selectedOption:'Public'})}>Public</Button>
                         <div className="mt-3">
-                            <TestTypes selectedOption={this.state.selectedOption}/>
+                            <TestTypes selectedOption={this.state.selectedOption} handleChange={this.handleOSChange}/>
+                            <div className="mt-3 d-flex">
+                                {this.state.selectedOperatingSystems.length>0 ? <button type="button" className="btn btn-primary ml-auto">Next &gt;&gt;</button> : null}
+                            </div>
                         </div>
                     </Card.Body>
                 </Card>
