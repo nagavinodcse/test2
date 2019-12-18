@@ -37,13 +37,13 @@ export default class TestTypes extends Component {
         return selectedOption !== '' ?
             <div>
                 <h1>{selectedOption}</h1>
-                <Accordion defaultActiveKey="" className="mt-3">
+                <Accordion defaultActiveKey={this.props.accordionKey} className="mt-3">
                     <Card bg="secondary">
                         <Accordion.Toggle as={Card.Header} onClick={() => this.handleTestType('webcrawler','')} eventKey="0">&gt;&gt; WSH </Accordion.Toggle>
                         <Accordion.Collapse eventKey="0">
                             <Card.Body>
-                                <Form.Check custom type="checkbox" onChange={this.handleWsh} name="wsh[]" checked={this.state.wsh.includes('WSH-JSCRIPT')} value="WSH-JSCRIPT" id={`wsh-jscript`} label="JScript"/>
-                                <Form.Check custom type="checkbox" onChange={this.handleWsh} name="wsh[]" checked={this.state.wsh.includes('WSH-VBSCRIPT')} value="WSH-VBSCRIPT" id={`wsh-vbscript`} label="VBScript"/>
+                                <Form.Check custom type="checkbox" onChange={this.handleWsh} name="wsh[]" checked={this.props.wsh.includes('WSH-JSCRIPT')} value="WSH-JSCRIPT" id={`wsh-jscript`} label="JScript"/>
+                                <Form.Check custom type="checkbox" onChange={this.handleWsh} name="wsh[]" checked={this.props.wsh.includes('WSH-VBSCRIPT')} value="WSH-VBSCRIPT" id={`wsh-vbscript`} label="VBScript"/>
                             </Card.Body>
                         </Accordion.Collapse>
                     </Card>
@@ -51,8 +51,8 @@ export default class TestTypes extends Component {
                         <Accordion.Toggle as={Card.Header} onClick={() => this.handleTestType('wsh',[])} eventKey="1">&gt;&gt; Web Crawler </Accordion.Toggle>
                         <Accordion.Collapse eventKey="1">
                             <Card.Body>
-                                <Form.Check custom type="radio" name="webcrawler" onChange={(e)=>this.handleTestType('webcrawler',e.target.value)} checked={this.state.webcrawler === 'WEBCRAWLER-100'} value="WEBCRAWLER-100" id={`webcrawler-100`} label="Top 100 Sites"/>
-                                <Form.Check custom type="radio" name="webcrawler" onChange={(e)=>this.handleTestType('webcrawler',e.target.value)} checked={this.state.webcrawler === 'WEBCRAWLER-50'} value="WEBCRAWLER-50" id={`webcrawler-50`} label="Top 50 Sites"/>
+                                <Form.Check custom type="radio" name="webcrawler" onChange={(e)=>this.handleTestType('webcrawler',e.target.value)} checked={this.props.webcrawler === 'WEBCRAWLER-100'} value="WEBCRAWLER-100" id={`webcrawler-100`} label="Top 100 Sites"/>
+                                <Form.Check custom type="radio" name="webcrawler" onChange={(e)=>this.handleTestType('webcrawler',e.target.value)} checked={this.props.webcrawler === 'WEBCRAWLER-50'} value="WEBCRAWLER-50" id={`webcrawler-50`} label="Top 50 Sites"/>
                             </Card.Body>
                         </Accordion.Collapse>
                     </Card>
