@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
-import {Button, Card, Form} from "react-bootstrap";
+import {Button, Card, Col, Form} from "react-bootstrap";
 import TestTypes from "./TestTypes";
 import './animate.css';
 import {Animated} from "react-animated-css";
-import {operatingSystems} from "./os.json"
+import {operatingSystems} from "./os.json";
 
 class Step1 extends Component{
     constructor(props){
@@ -119,7 +119,100 @@ class Step3 extends Component{
                         ))
                 }
                 <button type="button" onClick={()=>this.props.submitStep('step3', 'step2')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
+                {(this.props.paths.length > 0) ?
+                    <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitStep('step3', 'step4')}>Next &gt;&gt;</button> : null}
             </Animated>
+            : '';
+    }
+}
+class Step4 extends Component{
+    constructor(props){
+        super(props);
+        this.state = {
+            settings:{
+                postmortem_debugging:false,
+                gflag:false
+            },
+            browsers:[
+                ''
+            ]
+        }
+    }
+    handleSettings = (e) => {
+        let verifyCheck = e.target.checked,selected = e.target.id;
+        let settings = {...this.state.settings};
+        if(verifyCheck){
+            settings[selected] = true;
+            this.setState({settings});
+            this.props.handleParent('settings', settings);
+        }else{
+            settings[selected] = false;
+            this.setState({settings});
+            this.props.handleParent('settings', settings);
+        }
+    };
+    handleBrowserList = (key,val) => {
+        let browser = [];
+        browser[key] = val;
+        this.setState({browsers:browser});
+        this.props.handleParent('browsers',browser);
+    };
+    render(){
+        return this.props.step4 ?
+            <Animated animationIn="bounceInRight" animationOut="bounceOutLeft" isVisible={true}>
+                <div className="row">
+                    <div className="col-sm-3">
+                        <Form.Check custom type="checkbox" id="postmortem_debugging" checked={this.props.parentState.settings.postmortem_debugging} onChange={this.handleSettings} value="true" label="Postmortem Debugging"/>
+                        <Form.Check custom type="checkbox" id="gflag" checked={this.props.parentState.settings.gflag} onChange={this.handleSettings} value="true" label="GFlag"/>
+                    </div>
+                    <div className="col-sm-6">
+                        <BrowserList gflag={this.props.parentState.settings.gflag} browsers={this.props.parentState.browsers} handleChange={this.handleBrowserList}/>
+                    </div>
+                </div>
+            </Animated>
+            : '';
+    }
+}
+class BrowserList extends Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            browserCount:0
+        }
+    }
+    handleAdd = () => {
+
+    };
+    handleChange = (e) =>{
+        let key = e.target.id.split('-')[1],val = e.target.value;
+        this.props.handleChange(key,val);
+    };
+    render() {
+        return this.props.gflag ?
+                <>
+                    <Form.Row>
+                        <Form.Group as={Col} md="10">
+                            <Form.Control name="browsers[]" type="text" required placeholder="Enter Browser name" id="browser-0" value={this.props.browsers.length>0 ? this.props.browsers[0] : ''} onChange={this.handleChange}/>
+                        </Form.Group>
+                        {
+                            this.state.browserCount < 5 ?
+                            <Form.Group as={Col} md="2">
+                                <Button onClick={this.handleAdd} variant="primary">+</Button>
+                            </Form.Group>
+                            : ''
+                        }
+                    </Form.Row>
+                    {
+                        this.state.browserCount > 0 ?
+                        this.state.browserCount.map(i =>
+                            (
+                                <Form.Group key={i}>
+                                    <Form.Control name="browsers[]" type="text" required placeholder="Enter Browser name" id={`browser-${i}`} value={this.props.browsers.length>0 ? this.props.browsers[i] : ''} onChange={this.handleChange}/>
+                                </Form.Group>
+                            )
+                        ) : ''
+                    }
+                </>
             : '';
     }
 }
@@ -133,9 +226,17 @@ export default class TestRequest extends Component {
             step1:true,
             step2:false,
             step3:false,
+            step4:false,
             selectedOS:[],
             paths:[],
-            accordionKey:''
+            accordionKey:'',
+            settings:{
+                postmortem_debugging:false,
+                gflag:false
+            },
+            browsers:[
+                ''
+            ]
         };
     }
     handleTestTypeChange = (testType,val) => {
@@ -157,7 +258,7 @@ export default class TestRequest extends Component {
                 accordionKey = '';
         }
         this.setState({accordionKey});
-    }
+    };
     submitStep = (firstStep,lastStep) => {
         this.setState({[firstStep]:false,[lastStep]:true});
     };
@@ -169,7 +270,8 @@ export default class TestRequest extends Component {
                     <Card.Body>
                         <Step1 step1={this.state.step1} handleChange={this.handleTestTypeChange} accordionKey={this.state.accordionKey} wsh={this.state.wsh} submitTest={this.submitStep} webcrawler={this.state.webcrawler}/>
                         <Step2 step2={this.state.step2} selectedOS={this.state.selectedOS} handleParent={this.handleTestTypeChange} submitOS={this.submitStep}/>
-                        <Step3 step3={this.state.step3} selectedOS={this.state.selectedOS} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
+                        <Step3 step3={this.state.step3} selectedOS={this.state.selectedOS} paths={this.state.paths} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
+                        <Step4 step4={this.state.step4} parentState={this.state} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                     </Card.Body>
                 </Card>
             </div>
