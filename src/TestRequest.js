@@ -4,6 +4,11 @@ import TestTypes from "./TestTypes";
 import './animate.css';
 import {Animated} from "react-animated-css";
 import {operatingSystems} from "./os.json";
+import DayPickerInput from 'react-day-picker/DayPickerInput';
+import {DateUtils} from 'react-day-picker';
+import 'react-day-picker/lib/style.css';
+import dateFnsFormat from 'date-fns/format';
+import dateFnsParse from 'date-fns/parse';
 
 class Step1 extends Component{
     constructor(props){
@@ -118,9 +123,11 @@ class Step3 extends Component{
                             </Form.Group>
                         ))
                 }
-                <button type="button" onClick={()=>this.props.submitStep('step3', 'step2')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
-                {(this.props.paths.length > 0) ?
+                <div className="mt-3 d-flex">
+                    <button type="button" onClick={()=>this.props.submitStep('step3', 'step2')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
+                    {(this.props.paths.length > 0) ?
                     <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitStep('step3', 'step4')}>Next &gt;&gt;</button> : null}
+                </div>
             </Animated>
             : '';
     }
@@ -132,10 +139,7 @@ class Step4 extends Component{
             settings:{
                 postmortem_debugging:false,
                 gflag:false
-            },
-            browsers:[
-                ''
-            ]
+            }
         }
     }
     handleSettings = (e) => {
@@ -151,11 +155,19 @@ class Step4 extends Component{
             this.props.handleParent('settings', settings);
         }
     };
-    handleBrowserList = (key,val) => {
-        let browser = [];
-        browser[key] = val;
-        this.setState({browsers:browser});
-        this.props.handleParent('browsers',browser);
+    showNext = () => {
+        let html = '';
+        const {settings, browsers} = this.props.parentState;
+        const {gflag, postmortem_debugging} = settings;
+        if (postmortem_debugging) {
+            html = !gflag ?
+                <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitStep('step4', 'step5')}>Next &gt;&gt;</button>
+                :
+                ((browsers.length > 0 && (browsers[0] !== '')) ?
+                    <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitStep('step4', 'step5')}>Next &gt;&gt;</button>
+                : null);
+        }
+        return html;
     };
     render(){
         return this.props.step4 ?
@@ -166,53 +178,122 @@ class Step4 extends Component{
                         <Form.Check custom type="checkbox" id="gflag" checked={this.props.parentState.settings.gflag} onChange={this.handleSettings} value="true" label="GFlag"/>
                     </div>
                     <div className="col-sm-6">
-                        <BrowserList gflag={this.props.parentState.settings.gflag} browsers={this.props.parentState.browsers} handleChange={this.handleBrowserList}/>
+                        <BrowserList gflag={this.props.parentState.settings.gflag} browsers={this.props.parentState.browsers} handleChange={this.props.handleParent}/>
                     </div>
+                </div>
+                <div className="mt-3 d-flex">
+                    <button type="button" onClick={()=>this.props.submitStep('step4', 'step3')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
+                    {this.showNext()}
                 </div>
             </Animated>
             : '';
+    }
+}
+class Step5 extends Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            testParameter:'',
+            eta:undefined,
+            format:'MM/dd/yyyy'
+        }
+    }
+    parseDate = (str, format, locale) => {
+        const parsed = dateFnsParse(str, format, new Date(), { locale });
+        if (DateUtils.isDate(parsed)) {
+            return parsed;
+        }
+        return undefined;
+    };
+    formatDate = (date, format, locale) => dateFnsFormat(date, format, {locale});
+    handleChange = (e) => {
+      this.setState({testParameter:e.target.value});
+      this.props.handleParent('testParameter',e.target.value);
+    };
+    handleDayChange = selectedDay => {
+        this.setState({eta:selectedDay});
+        this.props.handleParent('eta',selectedDay);
+    };
+    render() {
+        const {testParameter, eta} = this.props.parentState;
+        return this.props.step5 ?
+            <Animated animationIn="bounceInRight" animationOut="bounceOutLeft" isVisible={true}>
+                <div className="row">
+                    <div className="col-sm-3">
+                        <label className="mb-2">Test Parameter</label>
+                        <Form.Check custom type="radio" id="test_default" checked={testParameter === 'default'} onChange={this.handleChange} value="default" label="Default"/>
+                        <Form.Check custom type="radio" id="test_vbscript" checked={testParameter === 'vbscript'} onChange={this.handleChange} value="vbscript" label="VBScript"/>
+                        <Form.Check custom type="radio" id="test_javascript" checked={testParameter === 'javascript'} onChange={this.handleChange} value="javascript" label="Java Script"/>
+                    </div>
+                    <div className="col-sm-4">
+                        <label htmlFor="eta" className="mb-2">ETA</label>
+                        <DayPickerInput
+                            formatDate={this.formatDate}
+                            format={this.state.format}
+                            parseDate={this.parseDate}
+                            placeholder={`${dateFnsFormat(new Date(), this.state.format)}`}
+                            id="eta"
+                            value={eta}
+                            className="form-control"
+                            onDayChange={this.handleDayChange}
+                        />
+                    </div>
+                </div>
+                <div className="mt-3 d-flex">
+                    <button type="button" onClick={()=>this.props.submitStep('step5', 'step4')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
+                </div>
+            </Animated>
+        : ''
     }
 }
 class BrowserList extends Component{
     constructor(props) {
         super(props);
         this.state = {
-            browserCount:0
+            browsers:['']
         }
     }
     handleAdd = () => {
-
+        let browsers = this.state.browsers.concat(['']);
+        this.setState({browsers});
+        this.props.handleChange('browsers',browsers);
     };
-    handleChange = (e) =>{
-        let key = e.target.id.split('-')[1],val = e.target.value;
-        this.props.handleChange(key,val);
+    handleDelete = i => e => {
+        let browsers = [
+            ...this.state.browsers.slice(0, i),
+            ...this.state.browsers.slice(i + 1)
+        ];
+        this.setState({browsers});
+        this.props.handleChange('browsers',browsers);
+    };
+    handleChange = i => e =>{
+        let browsers = [...this.state.browsers];
+        browsers[i] = e.target.value;
+        this.setState({browsers});
+        this.props.handleChange('browsers',browsers);
     };
     render() {
         return this.props.gflag ?
-                <>
-                    <Form.Row>
-                        <Form.Group as={Col} md="10">
-                            <Form.Control name="browsers[]" type="text" required placeholder="Enter Browser name" id="browser-0" value={this.props.browsers.length>0 ? this.props.browsers[0] : ''} onChange={this.handleChange}/>
-                        </Form.Group>
-                        {
-                            this.state.browserCount < 5 ?
-                            <Form.Group as={Col} md="2">
-                                <Button onClick={this.handleAdd} variant="primary">+</Button>
+            <>
+                {
+                    this.props.browsers.map((input, i) =>
+                        (<Form.Row key={i}>
+                            <Form.Group as={Col} md="9">
+                                <Form.Control type="text" required placeholder="Enter Browser name" id={`browser-${i}`} value={input} onChange={this.handleChange(i)}/>
                             </Form.Group>
-                            : ''
-                        }
-                    </Form.Row>
-                    {
-                        this.state.browserCount > 0 ?
-                        this.state.browserCount.map(i =>
-                            (
-                                <Form.Group key={i}>
-                                    <Form.Control name="browsers[]" type="text" required placeholder="Enter Browser name" id={`browser-${i}`} value={this.props.browsers.length>0 ? this.props.browsers[i] : ''} onChange={this.handleChange}/>
-                                </Form.Group>
-                            )
-                        ) : ''
-                    }
-                </>
+                            {
+                                i < 1 ?
+                                    <Form.Group as={Col} md="3">
+                                        <Button onClick={this.handleAdd} variant="primary">+ Add</Button>
+                                    </Form.Group>
+                                    :
+                                    <Form.Group as={Col} md="3">
+                                        <Button onClick={this.handleDelete(i)} variant="danger">&times; Delete</Button>
+                                    </Form.Group>
+                            }
+                        </Form.Row>))
+                }
+            </>
             : '';
     }
 }
@@ -227,6 +308,7 @@ export default class TestRequest extends Component {
             step2:false,
             step3:false,
             step4:false,
+            step5:false,
             selectedOS:[],
             paths:[],
             accordionKey:'',
@@ -234,9 +316,9 @@ export default class TestRequest extends Component {
                 postmortem_debugging:false,
                 gflag:false
             },
-            browsers:[
-                ''
-            ]
+            browsers:[''],
+            testParameter:'',
+            eta:undefined
         };
     }
     handleTestTypeChange = (testType,val) => {
@@ -272,6 +354,7 @@ export default class TestRequest extends Component {
                         <Step2 step2={this.state.step2} selectedOS={this.state.selectedOS} handleParent={this.handleTestTypeChange} submitOS={this.submitStep}/>
                         <Step3 step3={this.state.step3} selectedOS={this.state.selectedOS} paths={this.state.paths} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                         <Step4 step4={this.state.step4} parentState={this.state} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
+                        <Step5 step5={this.state.step5} parentState={this.state} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                     </Card.Body>
                 </Card>
             </div>
