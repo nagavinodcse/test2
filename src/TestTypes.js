@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import {Accordion, Card, Form} from "react-bootstrap";
+import {Form} from "react-bootstrap";
 
 export default class TestTypes extends Component {
     constructor(props){
