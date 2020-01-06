@@ -158,14 +158,13 @@ class Step4 extends Component{
     showNext = () => {
         let html = '';
         const {settings, browsers} = this.props.parentState;
-        const {gflag, postmortem_debugging} = settings;
-        if (postmortem_debugging) {
-            html = !gflag ?
+        const {gflag} = settings;
+        if (gflag) {
+             html = ((browsers.length > 0 && (browsers[0] !== '')) ?
                 <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitStep('step4', 'step5')}>Next &gt;&gt;</button>
-                :
-                ((browsers.length > 0 && (browsers[0] !== '')) ?
-                    <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitStep('step4', 'step5')}>Next &gt;&gt;</button>
-                : null);
+            : null);
+        }else{
+            html = <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitStep('step4', 'step5')}>Next &gt;&gt;</button>
         }
         return html;
     };
