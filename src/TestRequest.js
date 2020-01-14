@@ -4,11 +4,7 @@ import TestTypes from "./TestTypes";
 import './animate.css';
 import {Animated} from "react-animated-css";
 import {operatingSystems} from "./os.json";
-import DayPickerInput from 'react-day-picker/DayPickerInput';
-import {DateUtils} from 'react-day-picker';
-import 'react-day-picker/lib/style.css';
-import dateFnsFormat from 'date-fns/format';
-import dateFnsParse from 'date-fns/parse';
+import DateTimePicker from 'react-datetime-picker';
 
 class Step1 extends Component{
     constructor(props){
@@ -192,50 +188,31 @@ class Step5 extends Component{
     constructor(props) {
         super(props);
         this.state = {
-            testParameter:'',
-            eta:undefined,
-            format:'MM/dd/yyyy'
+            eta:'',
+            checkTime:true
         }
     }
-    parseDate = (str, format, locale) => {
-        const parsed = dateFnsParse(str, format, new Date(), { locale });
-        if (DateUtils.isDate(parsed)) {
-            return parsed;
-        }
-        return undefined;
-    };
-    formatDate = (date, format, locale) => dateFnsFormat(date, format, {locale});
-    handleChange = (e) => {
-      this.setState({testParameter:e.target.value});
-      this.props.handleParent('testParameter',e.target.value);
-    };
     handleDayChange = selectedDay => {
         this.setState({eta:selectedDay});
         this.props.handleParent('eta',selectedDay);
+        let d = this.state.eta;
+        if(d instanceof Date && !isNaN(d)) {
+            let varTime = d.getTime(), minTime = new Date().setHours(new Date().getHours() + 1);
+            let reqTime = (varTime >= minTime);
+            this.setState({checkTime: reqTime});
+        }
     };
     render() {
-        const {testParameter, eta} = this.props.parentState;
+        const {eta} = this.props.parentState;
         return this.props.step5 ?
             <Animated animationIn="bounceInRight" animationOut="bounceOutLeft" isVisible={true}>
                 <div className="row">
-                    <div className="col-sm-3">
-                        <label className="mb-2">Test Parameter</label>
-                        <Form.Check custom type="radio" id="test_default" checked={testParameter === 'default'} onChange={this.handleChange} value="default" label="Default"/>
-                        <Form.Check custom type="radio" id="test_vbscript" checked={testParameter === 'vbscript'} onChange={this.handleChange} value="vbscript" label="VBScript"/>
-                        <Form.Check custom type="radio" id="test_javascript" checked={testParameter === 'javascript'} onChange={this.handleChange} value="javascript" label="Java Script"/>
-                    </div>
                     <div className="col-sm-4">
                         <label htmlFor="eta" className="mb-2">ETA</label>
-                        <DayPickerInput
-                            formatDate={this.formatDate}
-                            format={this.state.format}
-                            parseDate={this.parseDate}
-                            placeholder={`${dateFnsFormat(new Date(), this.state.format)}`}
-                            id="eta"
-                            value={eta}
-                            className="form-control"
-                            onDayChange={this.handleDayChange}
-                        />
+                        <DateTimePicker onChange={this.handleDayChange} className={`form-control ${this.state.checkTime ? '' : 'is-invalid'}`} value={eta} minDate={ new Date(new Date().setHours(new Date().getHours() + 1)) }/>
+                        <div className="invalid-feedback">
+                            ETA should be at least greater than 1 Hour.
+                        </div>
                     </div>
                 </div>
                 <div className="mt-3 d-flex">
@@ -316,7 +293,6 @@ export default class TestRequest extends Component {
                 gflag:false
             },
             browsers:[''],
-            testParameter:'',
             eta:undefined
         };
     }
