@@ -95,15 +95,18 @@ class Step3 extends Component{
     constructor(props){
         super(props);
         this.state = {
-            paths:[],
+            paths:[''],
             operatingSystems
         }
     }
-    handlePath = (e) => {
-        let paths = [...this.state.paths],name = e.target.name,value = e.target.value;
-        const [i, prop] = name.split(/\[(.*?)\]/g).slice(1).filter(Boolean);
-        paths[i] = { ...paths[i],value};
-        this.setState({ paths });
+    handlePath = i => (e) => {
+        let paths = [...this.state.paths],val = e.target.value;
+        if(val === ''){
+            paths.splice(i,1);
+        }else {
+            paths[i] = e.target.value;
+        }
+        this.setState({paths});
         this.props.handleParent('paths',paths);
     };
     render() {
@@ -115,13 +118,13 @@ class Step3 extends Component{
                         (
                             <Form.Group key={`OS-${i}`}>
                                 <Form.Label>{operatingSystems.find(i => i.id === os).name} {operatingSystems.find(i => i.id === os).type} Path</Form.Label>
-                                <Form.Control id={`OS-${i}`} type="text" name={`OS[${i}]`} value={this.state.paths[i] ? Object.values(this.state.paths[i]) : ''} onChange={this.handlePath}/>
+                                <Form.Control id={`OS-${i}`} type="text" name={`OS[${i}]`} value={this.state.paths[i] ? this.state.paths[i] : ''} onChange={this.handlePath(i)}/>
                             </Form.Group>
                         ))
                 }
                 <div className="mt-3 d-flex">
                     <button type="button" onClick={()=>this.props.submitStep('step3', 'step2')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
-                    {(this.props.paths.length > 0) ?
+                    {(this.props.paths.length === this.props.selectedOS.length) ?
                     <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitStep('step3', 'step4')}>Next &gt;&gt;</button> : null}
                 </div>
             </Animated>
