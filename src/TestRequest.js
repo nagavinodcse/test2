@@ -1,10 +1,15 @@
 import React, {Component} from 'react';
-import {Button, Card, Col, Form} from "react-bootstrap";
+import {Button, Card, Col, Form, Row} from "react-bootstrap";
 import TestTypes from "./TestTypes";
+import moment from 'moment'
+import momentLocalizer from 'react-widgets-moment';
 import './animate.css';
 import {Animated} from "react-animated-css";
 import {operatingSystems} from "./os.json";
-import DateTimePicker from 'react-datetime-picker';
+import DateTimePicker from 'react-widgets/lib/DateTimePicker';
+import 'react-widgets/dist/css/react-widgets.css';
+moment.locale('en');
+momentLocalizer();
 
 class Step1 extends Component{
     constructor(props){
@@ -21,7 +26,13 @@ class Step1 extends Component{
             <div className="mt-3">
                 <TestTypes selectedOption={this.state.selectedOption} wsh={this.props.wsh} webcrawler={this.props.webcrawler} accordionKey={this.props.accordionKey} handleChange={this.props.handleChange}/>
                 <div className="mt-3 d-flex">
-                    {(this.props.wsh.length>0 || this.props.webcrawler !== '') ? <button type="button" onClick={()=>this.props.submitTest('step1','step2')} className="btn btn-primary ml-auto">Next &gt;&gt;</button> : null}
+                {
+                    this.props.gotoReview ? (
+                        <button type="button" className="btn btn-success ml-auto" onClick={()=>this.props.submitTest('step1','review')}>Goto Review</button>
+                    ) : (
+                        (this.props.wsh.length>0 || this.props.webcrawler !== '') ? <button type="button" onClick={()=>this.props.submitTest('step1','step2')} className="btn btn-primary ml-auto">Next &gt;&gt;</button> : null
+                    )
+                }
                 </div>
             </div>
         </Animated> : '';
@@ -84,9 +95,19 @@ class Step2 extends Component{
                     </div>
                 </div>
                 <div className="mt-3 d-flex">
-                    <button type="button" onClick={() => this.props.submitOS('step2', 'step1')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
-                    {(this.props.selectedOS.length > 0) ?
-                        <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitOS('step2', 'step3')}>Next &gt;&gt;</button> : null}
+                    {
+                        this.props.gotoReview ? (
+                            <button type="button" className="btn btn-success ml-auto" onClick={()=>this.props.submitOS('step2','review')}>Goto Review</button>
+                        ) : (
+                            <>
+                                <button type="button" onClick={() => this.props.submitOS('step2', 'step1')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
+                                {
+                                    (this.props.selectedOS.length > 0) ?
+                                    <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitOS('step2', 'step3')}>Next &gt;&gt;</button> : null
+                                }
+                            </>
+                        )
+                    }
                 </div>
             </Animated> : '';
     }
@@ -123,9 +144,17 @@ class Step3 extends Component{
                         ))
                 }
                 <div className="mt-3 d-flex">
-                    <button type="button" onClick={()=>this.props.submitStep('step3', 'step2')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
-                    {(this.props.paths.length === this.props.selectedOS.length) ?
-                    <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitStep('step3', 'step4')}>Next &gt;&gt;</button> : null}
+                    {
+                        this.props.gotoReview ? (
+                            <button type="button" className="btn btn-success ml-auto" onClick={()=>this.props.submitStep('step3','review')}>Goto Review</button>
+                        ) : (
+                            <>
+                                <button type="button" onClick={()=>this.props.submitStep('step3', 'step2')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
+                                {(this.props.paths.length === this.props.selectedOS.length) ?
+                                    <button type="button" className="btn btn-primary ml-3" onClick={() => this.props.submitStep('step3', 'step4')}>Next &gt;&gt;</button> : null}
+                            </>
+                        )
+                    }
                 </div>
             </Animated>
             : '';
@@ -180,8 +209,16 @@ class Step4 extends Component{
                     </div>
                 </div>
                 <div className="mt-3 d-flex">
-                    <button type="button" onClick={()=>this.props.submitStep('step4', 'step3')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
-                    {this.showNext()}
+                    {
+                        this.props.parentState.gotoReview ? (
+                            <button type="button" className="btn btn-success ml-auto" onClick={()=>this.props.submitStep('step4','review')}>Goto Review</button>
+                        ) : (
+                            <>
+                                <button type="button" onClick={()=>this.props.submitStep('step4', 'step3')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
+                                {this.showNext()}
+                            </>
+                        )
+                    }
                 </div>
             </Animated>
             : '';
@@ -198,28 +235,36 @@ class Step5 extends Component{
     handleDayChange = selectedDay => {
         this.setState({eta:selectedDay});
         this.props.handleParent('eta',selectedDay);
-        let d = this.state.eta;
-        if(d instanceof Date && !isNaN(d)) {
-            let varTime = d.getTime(), minTime = new Date().setHours(new Date().getHours() + 1);
-            let reqTime = (varTime >= minTime);
+        let d = moment(selectedDay);
+        if(d.isValid()) {
+            let minTime = moment().add(1,'h').unix(),reqTime = (d.unix() >= minTime);
             this.setState({checkTime: reqTime});
         }
     };
     render() {
-        const {eta} = this.props.parentState;
+        const {eta,gotoReview} = this.props.parentState;
         return this.props.step5 ?
             <Animated animationIn="bounceInRight" animationOut="bounceOutLeft" isVisible={true}>
                 <div className="row">
                     <div className="col-sm-4">
                         <label htmlFor="eta" className="mb-2">ETA</label>
-                        <DateTimePicker onChange={this.handleDayChange} className={`form-control ${this.state.checkTime ? '' : 'is-invalid'}`} value={eta} minDate={ new Date(new Date().setHours(new Date().getHours() + 1)) }/>
+                        <DateTimePicker onChange={this.handleDayChange} className={`${this.state.checkTime ? '' : 'is-invalid'}`} value={eta} step={15} min={ moment().add(61,'m').toDate() }/>
                         <div className="invalid-feedback">
                             ETA should be at least greater than 1 Hour.
                         </div>
                     </div>
                 </div>
                 <div className="mt-3 d-flex">
-                    <button type="button" onClick={()=>this.props.submitStep('step5', 'step4')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
+                    {
+                        gotoReview ? (
+                            <button type="button" className="btn btn-success ml-auto" onClick={()=>this.props.submitStep('step5','review')}>Goto Review</button>
+                        ) : (
+                            <>
+                                <button type="button" onClick={()=>this.props.submitStep('step5', 'step4')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
+                                { eta !== undefined ? <button type="button" onClick={()=>this.props.submitStep('step5','review')} className="btn btn-success ml-3">Review</button> : ''}
+                            </>
+                        )
+                    }
                 </div>
             </Animated>
         : ''
@@ -276,6 +321,102 @@ class BrowserList extends Component{
             : '';
     }
 }
+class Review extends Component{
+    constructor(props) {
+        super(props);
+        this.state = {
+            operatingSystems
+        };
+    }
+    getOperatingSystem = id => {
+        let operatingSystems = this.state.operatingSystems;
+        let object = operatingSystems.find(obj => obj.id === id);
+        return `${object.name} - ${object.type}`;
+    };
+    handleReview = step => {
+        this.props.handleParent('gotoReview',true);
+        this.props.submitStep('review',step);
+    };
+    render() {
+        let parent = this.props.parentState;
+        return parent.review ?
+        <Animated animationIn="bounceInRight" animationOut="bounceOutLeft" isVisible={true}>
+            <Row>
+             <Col sm={4}>
+                 <Card bg="dark" text="white" className="mb-3">
+                     <Card.Body>
+                         <Card.Title className="d-flex">Step 1
+                             <span className="ml-auto"><button type="button" onClick={()=>this.handleReview('step1')} className="btn btn-sm btn-link">Edit</button></span>
+                         </Card.Title>
+                         <ul>
+                             <li>Selected Option: {parent.selectedOption}</li>
+                             <li>Wsh: { parent.wsh.join(',') }</li>
+                             <li>WebCrawler: {parent.webcrawler !== '' ? parent.webcrawler : 'Not Selected'}</li>
+                         </ul>
+                     </Card.Body>
+                 </Card>
+             </Col>
+             <Col sm={4}>
+                 <Card bg="dark" text="white" className="mb-3">
+                     <Card.Body>
+                         <Card.Title className="d-flex">Step 2
+                             <span className="ml-auto"><button type="button" onClick={()=>this.handleReview('step2')} className="btn btn-sm btn-link">Edit</button></span>
+                         </Card.Title>
+                         <p>Operating Systems Selected</p>
+                         <ul>
+                             {
+                                 parent.selectedOS.map((os,i) => <li key={i}>{this.getOperatingSystem(os)}</li>)
+                             }
+                         </ul>
+                     </Card.Body>
+                 </Card>
+             </Col>
+             <Col sm={4}>
+                 <Card bg="dark" text="white" className="mb-3">
+                     <Card.Body>
+                         <Card.Title className="d-flex">Step 3
+                             <span className="ml-auto"><button type="button" onClick={()=>this.handleReview('step3')} className="btn btn-sm btn-link">Edit</button></span>
+                         </Card.Title>
+                         <p>Operating System Paths</p>
+                         <ul>
+                             {
+                                 parent.selectedOS.map((os,i) => <li key={i}>{this.getOperatingSystem(os)} : {parent.paths[i]}</li>)
+                             }
+                         </ul>
+                     </Card.Body>
+                 </Card>
+             </Col>
+             <Col sm={4}>
+                 <Card bg="dark" text="white" className="mb-3">
+                     <Card.Body>
+                         <Card.Title className="d-flex">Step 4
+                             <span className="ml-auto"><button type="button" onClick={()=>this.handleReview('step4')} className="btn btn-sm btn-link">Edit</button></span>
+                         </Card.Title>
+                         <p>Test Parameters</p>
+                         <ul>
+                             <li>Postmortem Debugging : {parent.settings.postmortem_debugging ? 'Selected' : 'Not Selected'}</li>
+                             <li>Gflag : {parent.settings.gflag ? 'selected' : 'not selected'}</li>
+                             {parent.settings.gflag ? (<li>Browsers : {parent.browsers.join(',')}</li>) : null}
+                         </ul>
+                     </Card.Body>
+                 </Card>
+             </Col>
+             <Col sm={4}>
+                 <Card bg="dark" text="white" className="mb-3">
+                     <Card.Body>
+                         <Card.Title className="d-flex">Step 5
+                             <span className="ml-auto"><button type="button" onClick={()=>this.handleReview('step5')} className="btn btn-sm btn-link">Edit</button></span>
+                         </Card.Title>
+                         <p>Estimated Execution time : {moment(parent.eta).format('lll')}</p>
+                     </Card.Body>
+                 </Card>
+             </Col>
+        </Row>
+        <button className="btn btn-success mt-3" type="button">Finish</button>
+        </Animated>
+        : ''
+    }
+}
 export default class TestRequest extends Component {
     constructor(props){
         super(props);
@@ -288,6 +429,8 @@ export default class TestRequest extends Component {
             step3:false,
             step4:false,
             step5:false,
+            review:false,
+            gotoReview:false,
             selectedOS:[],
             paths:[],
             accordionKey:'',
@@ -296,7 +439,7 @@ export default class TestRequest extends Component {
                 gflag:false
             },
             browsers:[''],
-            eta:undefined
+            eta:undefined,
         };
     }
     handleTestTypeChange = (testType,val) => {
@@ -328,11 +471,12 @@ export default class TestRequest extends Component {
                 <Card bg="dark" text="white">
                     <Card.Header>Test Request</Card.Header>
                     <Card.Body>
-                        <Step1 step1={this.state.step1} handleChange={this.handleTestTypeChange} accordionKey={this.state.accordionKey} wsh={this.state.wsh} submitTest={this.submitStep} webcrawler={this.state.webcrawler}/>
-                        <Step2 step2={this.state.step2} selectedOS={this.state.selectedOS} handleParent={this.handleTestTypeChange} submitOS={this.submitStep}/>
-                        <Step3 step3={this.state.step3} selectedOS={this.state.selectedOS} paths={this.state.paths} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
+                        <Step1 step1={this.state.step1} handleChange={this.handleTestTypeChange} accordionKey={this.state.accordionKey} wsh={this.state.wsh} submitTest={this.submitStep} gotoReview={this.state.gotoReview} webcrawler={this.state.webcrawler}/>
+                        <Step2 step2={this.state.step2} selectedOS={this.state.selectedOS} handleParent={this.handleTestTypeChange} gotoReview={this.state.gotoReview} submitOS={this.submitStep}/>
+                        <Step3 step3={this.state.step3} selectedOS={this.state.selectedOS} paths={this.state.paths} gotoReview={this.state.gotoReview} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                         <Step4 step4={this.state.step4} parentState={this.state} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                         <Step5 step5={this.state.step5} parentState={this.state} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
+                        <Review parentState={this.state} submitStep={this.submitStep} handleParent={this.handleTestTypeChange}/>
                     </Card.Body>
                 </Card>
             </div>
