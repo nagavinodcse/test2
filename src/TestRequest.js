@@ -22,7 +22,7 @@ class Step1 extends Component{
         return this.props.step1 ? <Animated animationIn="bounceInRight" animationOut="bounceOutLeft" isVisible={true}>
             <Button type="button" onClick={()=>{this.setState({selectedOption:'Official'});this.props.handleChange('selectedOption','Official')}} className="mr-3">Official</Button>
             <Button type="button" onClick={()=>{this.setState({selectedOption:'Private'});this.props.handleChange('selectedOption','Private')}} className="mr-3">Private</Button>
-            <Button type="button" onClick={()=>{this.setState({selectedOption:'Public'});this.props.handleChange('selectedOption','Public')}}>Public</Button>
+            <Button type="button" onClick={()=>{this.setState({selectedOption:'MTP'});this.props.handleChange('selectedOption','MTP')}}>MTP</Button>
             <div className="mt-3">
                 <TestTypes selectedOption={this.state.selectedOption} wsh={this.props.wsh} webcrawler={this.props.webcrawler} accordionKey={this.props.accordionKey} handleChange={this.props.handleChange}/>
                 <div className="mt-3 d-flex">
