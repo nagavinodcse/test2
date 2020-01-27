@@ -487,7 +487,7 @@ export default class TestRequest extends Component {
     finishRequest = () => {
         // http://10.192.226.137:6000/api/testrequest/createNewTestRequest
         let filteredOS = operatingSystems.filter(os => this.state.selectedOS.includes(os.id));
-        axios.post('http://localhost:5000/posts', {
+        axios.post('http://10.192.226.137:6000/api/testrequest/createNewTestRequest', {
             selectedOption: this.state.selectedOption,
             wsh: this.state.wsh,
             webcrawler: this.state.webcrawler,
