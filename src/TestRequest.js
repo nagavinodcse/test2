@@ -327,7 +327,26 @@ class Review extends Component{
         this.state = {
             operatingSystems
         };
+this.getData = this.getData.bind(this);
     }
+ getData() {
+
+           fetch('http://10.192.226.137:6000/api/testrequest/createNewTestRequest', {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body:JSON.stringify({os:[{"name":"RS5","arch":"x86"}],
+		testName:["webcrawler"],
+		completeBy:"2019-12-12 4.00.00 PM"
+                })})
+alert("hiakjbebme");
+
+        //  var xhr = new XMLHttpRequest()
+          //xhr.addEventListener('load', () => {
+            //console.log(xhr.responseText)
+          //})
+          //xhr.open('POST', 'http://10.192.226.137:5000/api/testrequest/createNewTestRequest')
+          //xhr.send(JSON.stringify({ example: 'data' }))
+        }
     getOperatingSystem = id => {
         let operatingSystems = this.state.operatingSystems;
         let object = operatingSystems.find(obj => obj.id === id);
@@ -412,7 +431,7 @@ class Review extends Component{
                  </Card>
              </Col>
         </Row>
-        <button className="btn btn-success mt-3" type="button">Finish</button>
+        <button type="button" onClick ={()=>this.getData()} className="btn btn-success mt-3" >Submit</button>
         </Animated>
         : ''
     }
@@ -472,7 +491,7 @@ export default class TestRequest extends Component {
                     <Card.Header>Test Request</Card.Header>
                     <Card.Body>
                         <Step1 step1={this.state.step1} handleChange={this.handleTestTypeChange} accordionKey={this.state.accordionKey} wsh={this.state.wsh} submitTest={this.submitStep} gotoReview={this.state.gotoReview} webcrawler={this.state.webcrawler}/>
-                        <Step2 step2={this.state.step2} selectedOS={this.state.selectedOS} handleParent={this.handleTestTypeChange} gotoReview={this.state.gotoReview} submitOS={this.submitStep}/>
+                        <Step2 step2={this.state.step2} selectedOS={this.state.selectedOS} handleParent={this.handleTestTypeChange} Next={this.state.Step3} submitOS={this.submitStep}/>
                         <Step3 step3={this.state.step3} selectedOS={this.state.selectedOS} paths={this.state.paths} gotoReview={this.state.gotoReview} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                         <Step4 step4={this.state.step4} parentState={this.state} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                         <Step5 step5={this.state.step5} parentState={this.state} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
