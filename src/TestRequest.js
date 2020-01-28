@@ -494,7 +494,7 @@ export default class TestRequest extends Component {
         if(this.state.wsh.length > 0){
             testName.push('wsh');
         }
-        axios.post('http://localhost:5000/posts', {
+        axios.post('http://10.192.226.137:6000/api/testrequest/createNewTestRequest', {
             selectedOption: this.state.selectedOption,
             wsh: this.state.wsh,
             webcrawler: this.state.webcrawler,
