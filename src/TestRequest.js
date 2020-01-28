@@ -487,39 +487,26 @@ export default class TestRequest extends Component {
     finishRequest = () => {
         // http://10.192.226.137:6000/api/testrequest/createNewTestRequest
         let filteredOS = operatingSystems.filter(os => this.state.selectedOS.includes(os.id));
-        axios.post('http://10.192.226.137:6000/api/testrequest/createNewTestRequest', {
+        let testName = [];
+        if (this.state.webcrawler !== '') {
+            testName.push('webcrawler');
+        }
+        if(this.state.wsh.length > 0){
+            testName.push('wsh');
+        }
+        axios.post('http://localhost:5000/posts', {
             selectedOption: this.state.selectedOption,
             wsh: this.state.wsh,
             webcrawler: this.state.webcrawler,
-            selectedOS: filteredOS,
+            os: filteredOS,
+            testName,
             paths: this.state.path,
             settings: this.state.settings,
             browsers: this.state.browsers,
             eta: moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
-        }).then(res =>{
-            let {data} = res;
+        }).then(() =>{
             alert('Test Request created successfully...!');
-            this.setState({
-                selectedOption: '',
-                wsh: [],
-                webcrawler: '',
-                step1: true,
-                step2: false,
-                step3: false,
-                step4: false,
-                step5: false,
-                review: false,
-                gotoReview: false,
-                selectedOS: [],
-                paths: [],
-                accordionKey: '',
-                settings: {
-                    postmortem_debugging: false,
-                    gflag: false
-                },
-                browsers: [''],
-                eta: undefined,
-            });
+            window.location.reload();
         });
     };
     handleTestTypeChange = (testType, val) => {
