@@ -1,17 +1,13 @@
 import React, {Component} from 'react';
 import {Button, Card, Col, Form, Row} from "react-bootstrap";
 import TestTypes from "./TestTypes";
-import moment from 'moment'
-import momentLocalizer from 'react-widgets-moment';
+import moment from 'moment';
 import axios from 'axios';
 import './animate.css';
 import {Animated} from "react-animated-css";
 import {operatingSystems} from "./os.json";
-import DateTimePicker from 'react-widgets/lib/DateTimePicker';
-import 'react-widgets/dist/css/react-widgets.css';
-
-moment.locale('en');
-momentLocalizer();
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 class Step1 extends Component {
     constructor(props) {
@@ -278,10 +274,18 @@ class Step5 extends Component {
                 <div className="row">
                     <div className="col-sm-4">
                         <label htmlFor="eta" className="mb-2">ETA</label>
-                        <DateTimePicker onChange={this.handleDayChange} className={`${this.state.checkTime ? '' : 'is-invalid'}`} value={eta} step={15} min={moment().add(61, 'm').toDate()}/>
-                        <div className="invalid-feedback">
-                            ETA should be at least greater than 1 Hour.
-                        </div>
+                        <DatePicker onChange={this.handleDayChange} className={`form-control ${this.state.checkTime ? '' : 'is-invalid'}`}
+                                    selected={eta}
+                                    showTimeSelect
+                                    minDate={new Date()}
+                                    timeIntervals={15}
+                                    /*minTime={moment().add(60, 'm').toDate()}
+                                    maxTime={moment().endOf('day').toDate()}*/
+                                    dateFormat="MMMM d, yyyy h:mm aa"
+                        />
+                        {
+                            this.state.checkTime ? '' : (<div className="invalid-feedback d-block">ETA should be at least greater than 1 Hour.</div>)
+                        }
                     </div>
                 </div>
                 <div className="mt-3 d-flex">
@@ -292,7 +296,7 @@ class Step5 extends Component {
                         ) : (
                             <>
                                 <button type="button" onClick={() => this.props.submitStep('step5', 'step4')} className="btn btn-primary ml-auto">&lt;&lt; Back</button>
-                                {eta !== undefined ?
+                                {((eta !== undefined) && (this.state.checkTime)) ?
                                     <button type="button" onClick={() => this.props.submitStep('step5', 'review')} className="btn btn-success ml-3">Review</button> : ''}
                             </>
                         )
@@ -494,7 +498,7 @@ export default class TestRequest extends Component {
         if(this.state.wsh.length > 0){
             testName.push('wsh');
         }
-        axios.post('http://10.192.226.137:6000/api/testrequest/createNewTestRequest', {
+        axios.post('http://localhost:5000/posts', {
             selectedOption: this.state.selectedOption,
             wsh: this.state.wsh,
             webcrawler: this.state.webcrawler,
@@ -540,7 +544,7 @@ export default class TestRequest extends Component {
                     <Card.Header>Test Request</Card.Header>
                     <Card.Body>
                         <Step1 step1={this.state.step1} handleChange={this.handleTestTypeChange} accordionKey={this.state.accordionKey} submitTest={this.submitStep} parentState={this.state}/>
-                        <Step2 step2={this.state.step2} selectedOS={this.state.selectedOS} handleParent={this.handleTestTypeChange} Next={this.state.Step3} submitOS={this.submitStep}/>
+                        <Step2 step2={this.state.step2} selectedOS={this.state.selectedOS} handleParent={this.handleTestTypeChange} next={this.state.step3} submitOS={this.submitStep}/>
                         <Step3 step3={this.state.step3} selectedOS={this.state.selectedOS} paths={this.state.paths} gotoReview={this.state.gotoReview} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                         <Step4 step4={this.state.step4} parentState={this.state} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                         <Step5 step5={this.state.step5} parentState={this.state} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
