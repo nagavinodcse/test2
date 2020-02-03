@@ -498,20 +498,45 @@ export default class TestRequest extends Component {
         if(this.state.wsh.length > 0){
             testName.push('wsh');
         }
-        axios.post('http://localhost:5000/posts', {
-            selectedOption: this.state.selectedOption,
-            wsh: this.state.wsh,
-            webcrawler: this.state.webcrawler,
-            os: filteredOS,
-            testName,
-            paths: this.state.path,
-            settings: this.state.settings,
-            browsers: this.state.browsers,
-            eta: moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
-        }).then(() =>{
-            alert('Test Request created successfully...!');
-            window.location.reload();
-        });
+        fetch('http://10.192.226.137:6000/api/testrequest/createNewTestRequest', {
+             method: "POST",
+             headers: {'Content-Type': 'application/json'},
+             body:JSON.stringify({
+                    // selectedOption: this.state.selectedOption,
+                    // wsh: this.state.wsh,
+                    // webcrawler: this.state.webcrawler,
+                    os: filteredOS,
+                    testName,
+                    // paths: this.state.path,
+                    // settings: this.state.settings,
+                    // browsers: this.state.browsers,
+                    completeBy: moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
+                // }).then(() =>{
+                //     alert('Test Request created successfully...!');
+                //     window.location.reload();
+             })}) 
+            //  fetch('http://10.192.226.137:6000/api/testrequest/createNewTestRequest', {
+            //     method: "POST",
+            //     headers: {'Content-Type': 'application/json'},
+            //     body:JSON.stringify({os:[{"name":"RS5","arch":"x86"}],
+            //     testName:["wsh"],
+            //     completeBy:"2019-12-12 4.00.00 PM"
+            //     })}) 
+
+        //  axios.post('http://10.192.226.137:6000/api/testrequest/createNewTestRequest', {
+        //     selectedOption: this.state.selectedOption,
+        //     wsh: this.state.wsh,
+        //     webcrawler: this.state.webcrawler,
+        //     os: filteredOS,
+        //     testName,
+        //     paths: this.state.path,
+        //     settings: this.state.settings,
+        //     browsers: this.state.browsers,
+        //     eta: moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
+        // }).then(() =>{
+        //     alert('Test Request created successfully...!');
+        //     window.location.reload();
+        // });
     };
     handleTestTypeChange = (testType, val) => {
         this.setState({[testType]: val});
