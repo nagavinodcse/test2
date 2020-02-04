@@ -9,6 +9,7 @@ import {operatingSystems} from "./os.json";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+//Component to select the testType Ex:- Official/Private/MTP
 class Step1 extends Component {
     constructor(props) {
         super(props);
@@ -48,6 +49,7 @@ class Step1 extends Component {
     }
 }
 
+//Component to select the OS Ex:- RS1_x64, RS1_x86
 class Step2 extends Component {
     constructor(props) {
         super(props);
@@ -127,6 +129,7 @@ class Step2 extends Component {
     }
 }
 
+//Component to provide .msu package path Ex: \\winsehotfix\hotfixes\Windows10\RS1\RTM\KB4537764\V1.001\free\NEU\X64\Windows10.0-KB4537764-x64.msu
 class Step3 extends Component {
     constructor(props) {
         super(props);
@@ -179,6 +182,7 @@ class Step3 extends Component {
     }
 }
 
+//Component to enable Postmortem debugging and provide gflags application name Ex:- iexplore.exe
 class Step4 extends Component {
     constructor(props) {
         super(props);
@@ -248,6 +252,7 @@ class Step4 extends Component {
     }
 }
 
+//Component to select estimated time of test completion. ETA should be atleast 1 hour from current system time.
 class Step5 extends Component {
     constructor(props) {
         super(props);
@@ -284,7 +289,7 @@ class Step5 extends Component {
                                     dateFormat="MMMM d, yyyy h:mm aa"
                         />
                         {
-                            this.state.checkTime ? '' : (<div className="invalid-feedback d-block">ETA should be at least greater than 1 Hour.</div>)
+                            this.state.checkTime ? '' : (<div className="invalid-feedback d-block">ETA should be at least 1 hour from the current system time.</div>)
                         }
                     </div>
                 </div>
@@ -342,7 +347,7 @@ class BrowserList extends Component {
                     this.props.browsers.map((input, i) =>
                         (<Form.Row key={i}>
                             <Form.Group as={Col} md="9">
-                                <Form.Control type="text" required placeholder="Enter Browser name" id={`browser-${i}`} value={input} onChange={this.handleChange(i)}/>
+                                <Form.Control type="text" required placeholder="Enter browser/application name Ex:- iexplore.exe" id={`browser-${i}`} value={input} onChange={this.handleChange(i)}/>
                             </Form.Group>
                             {
                                 i < 1 ?
