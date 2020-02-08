@@ -2,13 +2,14 @@ import React, {Component} from 'react';
 import {Button, Card, Col, Form, Row} from "react-bootstrap";
 import TestTypes from "./TestTypes";
 import moment from 'moment';
-import axios from 'axios';
+// import axios from 'axios';
 import './animate.css';
 import {Animated} from "react-animated-css";
 import {operatingSystems} from "./os.json";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
+//Component to select the testType Ex:- Official/Private/MTP
 class Step1 extends Component {
     constructor(props) {
         super(props);
@@ -48,6 +49,7 @@ class Step1 extends Component {
     }
 }
 
+//Component to select the OS Ex:- RS1_x64, RS1_x86
 class Step2 extends Component {
     constructor(props) {
         super(props);
@@ -127,6 +129,7 @@ class Step2 extends Component {
     }
 }
 
+//Component to provide .msu package path Ex: \\winsehotfix\hotfixes\Windows10\RS1\RTM\KB4537764\V1.001\free\NEU\X64\Windows10.0-KB4537764-x64.msu
 class Step3 extends Component {
     constructor(props) {
         super(props);
@@ -179,6 +182,7 @@ class Step3 extends Component {
     }
 }
 
+//Component to enable Postmortem debugging and provide gflags application name Ex:- iexplore.exe
 class Step4 extends Component {
     constructor(props) {
         super(props);
@@ -248,6 +252,7 @@ class Step4 extends Component {
     }
 }
 
+//Component to select estimated time of test completion. ETA should be atleast 1 hour from current system time.
 class Step5 extends Component {
     constructor(props) {
         super(props);
@@ -284,7 +289,7 @@ class Step5 extends Component {
                                     dateFormat="MMMM d, yyyy h:mm aa"
                         />
                         {
-                            this.state.checkTime ? '' : (<div className="invalid-feedback d-block">ETA should be at least greater than 1 Hour.</div>)
+                            this.state.checkTime ? '' : (<div className="invalid-feedback d-block">ETA should be at least 1 hour from the current system time.</div>)
                         }
                     </div>
                 </div>
@@ -342,7 +347,7 @@ class BrowserList extends Component {
                     this.props.browsers.map((input, i) =>
                         (<Form.Row key={i}>
                             <Form.Group as={Col} md="9">
-                                <Form.Control type="text" required placeholder="Enter Browser name" id={`browser-${i}`} value={input} onChange={this.handleChange(i)}/>
+                                <Form.Control type="text" required placeholder="Enter browser/application name Ex:- iexplore.exe" id={`browser-${i}`} value={input} onChange={this.handleChange(i)}/>
                             </Form.Group>
                             {
                                 i < 1 ?
@@ -498,20 +503,54 @@ export default class TestRequest extends Component {
         if(this.state.wsh.length > 0){
             testName.push('wsh');
         }
-        axios.post('http://localhost:5000/posts', {
-            selectedOption: this.state.selectedOption,
-            wsh: this.state.wsh,
-            webcrawler: this.state.webcrawler,
+        /* fetch('http://localhost:6000/api/testrequest/createNewTestRequest', {
+             method: "POST",
+             headers: {'Content-Type': 'application/json'},
+             body:JSON.stringify({
+                    os: filteredOS,
+                    testName,
+                    completeBy: moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
+                })
+         }).then(() =>{
+                alert('Test Request created successfully...!');
+                window.location.reload();
+             }) ;*/
+             var myHeaders = new Headers();
+             myHeaders.append("Content-Type", "application/json");
+             
+             var raw = JSON.stringify({"os":[{"name":"RS5","arch":"x86"}],"testName":["webcrawler"],"completeBy":"2019-12-12 4.00.00 PM"});
+             
+             var requestOptions = {
+               method: 'POST',
+               headers: myHeaders,
+               body: raw,
+               redirect: 'follow'
+             };
+             
+             fetch("http://localhost:6000/api/testrequest/createNewTestRequest", requestOptions)
+               .then(response => response.text())
+               .then(result => console.log(result))
+               .catch(error => console.log('error', error));    
+        console.log(JSON.stringify({"os":[{"name":"RS5","arch":"x86"}],"testName":["webcrawler"],"completeBy":"2019-12-12 4.00.00 PM"}));
+        console.log({
+             "os": filteredOS,
+             "testName":testName,
+             "completeBy": moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
+         })
+         /*axios.post('http://localhost:6000/api/testrequest/createNewTestRequest',{
+           /* selectedOption: this.state.selectedOption,
+           wsh: this.state.wsh,
+            webcrawler: this.state.webcrawler, 
             os: filteredOS,
-            testName,
-            paths: this.state.path,
+            testName:testName,
+            /* paths: this.state.path,
             settings: this.state.settings,
-            browsers: this.state.browsers,
-            eta: moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
-        }).then(() =>{
+            browsers: this.state.browsers, 
+            completeBy: moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
+        },{headers:{"Content-Type":"application/json"}}).then(() =>{
             alert('Test Request created successfully...!');
             window.location.reload();
-        });
+        });*/
     };
     handleTestTypeChange = (testType, val) => {
         this.setState({[testType]: val});

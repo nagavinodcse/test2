@@ -1,5 +1,6 @@
 import React, {Component} from "react";
 import {Form} from "react-bootstrap";
+// import axios from "axios";
 
 export default class TestTypes extends Component {
     constructor(props){
@@ -8,6 +9,9 @@ export default class TestTypes extends Component {
             wsh:[],
             webcrawler:''
         };
+    }
+    componentDidMount(){
+        this.getTestPackages();
     }
     handleTestType = (key,value) => {
         this.setState({[key]: value});
@@ -34,6 +38,15 @@ export default class TestTypes extends Component {
         this.setState({webcrawler: val});
         this.props.handleChange('webcrawler',val);
     };
+    getTestPackages = () => {
+        // axios.defaults.headers.common['Access-Control-Allow-Origin'] = 'no-cors';
+        /* axios.get('http://localhost:6000/api/testrequest/getTestPackages').then(res=>{
+           console.log(res.data);
+       }); */
+       fetch('https://localhost:6001/api/testrequest/getTestPackages').then(res=>{
+           console.log(res.data);
+       });
+    }
     componentDidUpdate(prevProps, prevState,snapshot) {
         if (prevProps.selectedOption !== this.props.selectedOption) {
             this.setState({wsh: [],webcrawler:''});
