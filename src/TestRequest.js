@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Button, Card, Col, Form, Row} from "react-bootstrap";
 import TestTypes from "./TestTypes";
 import moment from 'moment';
-// import axios from 'axios';
+import axios from 'axios';
 import './animate.css';
 import {Animated} from "react-animated-css";
 import {operatingSystems} from "./os.json";
@@ -515,7 +515,7 @@ export default class TestRequest extends Component {
                 alert('Test Request created successfully...!');
                 window.location.reload();
              }) ;*/
-             var myHeaders = new Headers();
+             /* var myHeaders = new Headers();
              myHeaders.append("Content-Type", "application/json");
              
              var raw = JSON.stringify({"os":[{"name":"RS5","arch":"x86"}],"testName":["webcrawler"],"completeBy":"2019-12-12 4.00.00 PM"});
@@ -536,21 +536,21 @@ export default class TestRequest extends Component {
              "os": filteredOS,
              "testName":testName,
              "completeBy": moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
-         })
-         /*axios.post('http://localhost:6000/api/testrequest/createNewTestRequest',{
-           /* selectedOption: this.state.selectedOption,
-           wsh: this.state.wsh,
+         }) */
+         axios.post('http://localhost:6000/api/testrequest/createNewTestRequest',{
+            selectedOption: this.state.selectedOption,
+            wsh: this.state.wsh,
             webcrawler: this.state.webcrawler, 
             os: filteredOS,
             testName:testName,
-            /* paths: this.state.path,
+            paths: this.state.path,
             settings: this.state.settings,
             browsers: this.state.browsers, 
             completeBy: moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
         },{headers:{"Content-Type":"application/json"}}).then(() =>{
             alert('Test Request created successfully...!');
             window.location.reload();
-        });*/
+        });
     };
     handleTestTypeChange = (testType, val) => {
         this.setState({[testType]: val});

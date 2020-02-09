@@ -1,13 +1,14 @@
 import React, {Component} from "react";
 import {Form} from "react-bootstrap";
-// import axios from "axios";
+import axios from "axios";
 
 export default class TestTypes extends Component {
     constructor(props){
         super(props);
         this.state = {
             wsh:[],
-            webcrawler:''
+            webcrawler:'',
+            testPackages:[]
         };
     }
     componentDidMount(){
@@ -39,13 +40,9 @@ export default class TestTypes extends Component {
         this.props.handleChange('webcrawler',val);
     };
     getTestPackages = () => {
-        // axios.defaults.headers.common['Access-Control-Allow-Origin'] = 'no-cors';
-        /* axios.get('http://localhost:6000/api/testrequest/getTestPackages').then(res=>{
-           console.log(res.data);
-       }); */
-       fetch('https://localhost:6001/api/testrequest/getTestPackages').then(res=>{
-           console.log(res.data);
-       });
+        axios.get('http://localhost:6000/api/testrequest/getTestPackages').then(res=>{
+           this.setState({testPackages:res.data});
+        });    
     }
     componentDidUpdate(prevProps, prevState,snapshot) {
         if (prevProps.selectedOption !== this.props.selectedOption) {
@@ -57,9 +54,14 @@ export default class TestTypes extends Component {
 
     render() {
         const {selectedOption} = this.props;
+        const {testPackages} = this.state;
         return selectedOption !== '' ?
             <div>
                 <h1>{selectedOption}</h1>
+                {
+                    testPackages.map((testPackage, i) =>
+                            <Form.Check key={`testPackage-${i}`} custom type="checkbox" id={`testPackage-${testPackage.id}`} onChange={this.handleWCCheckbox} checked={this.props.webcrawler === testPackage.name} value={testPackage.name} id={testPackage.name} label={testPackage.name}/>)
+                }
                 <Form.Check custom type="checkbox" onChange={this.handleWshCheckbox} checked={this.props.wsh.includes('WSH-JSCRIPT') && this.props.wsh.includes('WSH-VBSCRIPT')} id={`wsh`} label="WSH"/>
                 <div className="col-sm-6">
                     <Form.Check custom type="checkbox" onChange={this.handleWsh} name="wsh[]" checked={this.props.wsh.includes('WSH-JSCRIPT')} value="WSH-JSCRIPT" id={`wsh-jscript`} label="JScript"/>
@@ -70,16 +72,6 @@ export default class TestTypes extends Component {
                     <Form.Check custom type="radio" disabled={this.props.webcrawler === 'WEBCRAWLER'} name="webcrawler" onChange={(e)=>this.handleTestType('webcrawler',e.target.value)} checked={this.props.webcrawler === 'WEBCRAWLER-100'} value="WEBCRAWLER-100" id={`webcrawler-100`} label="Top 100 Sites"/>
                     <Form.Check custom type="radio" disabled={this.props.webcrawler === 'WEBCRAWLER'} name="webcrawler" onChange={(e)=>this.handleTestType('webcrawler',e.target.value)} checked={this.props.webcrawler === 'WEBCRAWLER-50'} value="WEBCRAWLER-50" id={`webcrawler-50`} label="Top 50 Sites"/>
                 </div>
-                {/*<Accordion defaultActiveKey={this.props.accordionKey} className="mt-3">
-                    <Card bg="secondary">
-                        <Accordion.Toggle as={Card.Header} onClick={() => this.handleTestType('wsh',[])} eventKey="1">&gt;&gt; Web Crawler </Accordion.Toggle>
-                        <Accordion.Collapse eventKey="1">
-                            <Card.Body>
-
-                            </Card.Body>
-                        </Accordion.Collapse>
-                    </Card>
-                </Accordion>*/}
             </div> : '';
     }
 }
