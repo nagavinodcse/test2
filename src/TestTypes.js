@@ -41,9 +41,8 @@ export default class TestTypes extends Component {
         this.setState({webcrawler: val});
         this.props.handleChange('webcrawler', val);
     };
-    getTestPackages = async () => {
-        let testPackages = await axios.get('http://localhost:6000/api/testrequest/getTestPackages').data;
-        this.setState({testPackages});
+    getTestPackages = () => {
+        axios.get('http://localhost:6000/api/testrequest/getTestPackages').then(res=> this.setState({testPackages:res.data}));
     };
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -62,16 +61,16 @@ export default class TestTypes extends Component {
                 <h1>{selectedOption}</h1>
                 {
                     testPackages.map((testPackage, i) =>(
-                        <>
-                        <Form.Check key={`testPackage-${i}`} custom type="checkbox" id={`testPackage-${testPackage.id}`} onChange={this.handleWCCheckbox} checked={this.props.webcrawler === testPackage.name} value={testPackage.name} label={testPackage.name}/>
+                        <div key={`testPackage-${i}`}>
+                        <Form.Check custom type="checkbox" id={`testPackage-${testPackage.id}`} onChange={this.handleWCCheckbox} checked={this.props.webcrawler === testPackage.name} value={testPackage.name} label={testPackage.name}/>
                         <div className="col-sm-6">
                             {
                                 testPackage.testPackage.map((tpk, i) =>
-                                    <Form.Check custom type="radio" disabled={this.props.webcrawler === tpk.name } name={tpk.name} onChange={(e) => this.handleTestType(tpk.name.toLowerCase(), e.target.value)} checked={this.props.webcrawler === 'WEBCRAWLER-100'} value={tpk.runnableUnit} id={`testPackage-${tpk.id}`} label={tpk.runnableUnit}/>
+                                    <Form.Check key={`subPackage-${i}`} custom type="radio" disabled={this.props.webcrawler === tpk.name } name={tpk.name} onChange={(e) => this.handleTestType(tpk.name.toLowerCase(), e.target.value)} checked={this.props.webcrawler === tpk.runnableUnit} value={tpk.runnableUnit} id={`subPackage-${tpk.id}`} label={tpk.runnableUnit}/>
                                 )
                             }
                         </div>
-                        </>
+                        </div>
                     ))
                 }
                 {/*<Form.Check custom type="checkbox" onChange={this.handleWshCheckbox} checked={this.props.wsh.includes('WSH-JSCRIPT') && this.props.wsh.includes('WSH-VBSCRIPT')} id={`wsh`} label="WSH"/>

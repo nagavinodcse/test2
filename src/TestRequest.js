@@ -87,24 +87,24 @@ class Step2 extends Component {
     };
     render() {
         let OS32 = this.filterOperatingSystems('x86'), OS64 = this.filterOperatingSystems('x64'),
-            OS32ids = OS32.map(a => a.id), OS64ids = OS64.map(a => a.id);
+            OS32ids = OS32 ? OS32.map(a => a.id) : [], OS64ids = OS64 ? OS64.map(a => a.id):[];
         return this.props.step2 ?
             <Animated animationIn="bounceInRight" animationOut="bounceOutLeft" isVisible={true}>
                 <h3>Operating System to Run</h3>
                 <div className="row">
                     <div className="col-sm-4">
                         <Form.Check custom type="checkbox" id="selectOS32" checked={this.state.selectedOS.length > 0 && OS32ids.every(item => this.state.selectedOS.includes(item))} onChange={this.handleSelectAll} value="x86" label="x86 (Select all)"/>
-                        {
+                        { OS32ids.length ?
                             OS32.map((os, i) =>
                                 <Form.Check key={`OS32-${i}`} custom type="checkbox" id={`os32-${os.id}`} onChange={this.handleSelectOS} checked={this.state.selectedOS.includes(os.id)} value={os.id} label={os.name}/>)
-                        }
+                        :""}
                     </div>
                     <div className="col-sm-4">
                         <Form.Check custom type="checkbox" id="selectOS64" checked={this.state.selectedOS.length > 0 && OS64ids.every(item => this.state.selectedOS.includes(item))} onChange={this.handleSelectAll} value="x64" label="x64 (Select all)"/>
-                        {
+                        {OS64ids.length ?
                             OS64.map((os, i) =>
                                 <Form.Check key={`OS64-${i}`} custom type="checkbox" id={`os64-${os.id}`} onChange={this.handleSelectOS} checked={this.state.selectedOS.includes(os.id)} value={os.id} label={os.name}/>)
-                        }
+                       :""}
                     </div>
                 </div>
                 <div className="mt-3 d-flex">
@@ -488,7 +488,7 @@ export default class TestRequest extends Component {
             operatingSystems:[]
         };
     }
-    componentDidMount() {
+    componentDidMount(){
         this.getTestOS();
     }
     finishRequest = () => {
@@ -574,9 +574,8 @@ export default class TestRequest extends Component {
     submitStep = (firstStep, lastStep) => {
         this.setState({[firstStep]: false, [lastStep]: true});
     };
-    getTestOS = async () => {
-        let operatingSystems = await axios.get('http://localhost:6000/api/testrequest/getTestOS').data;
-        this.setState({operatingSystems});
+    getTestOS =async () => {
+        await axios.get('http://localhost:6000/api/testrequest/getTestOS').then(res=>this.setState({operatingSystems:res.data}));
     };
     render() {
         return (
