@@ -54,17 +54,12 @@ class Step2 extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            operatingSystems:[],
             selectedOS: []
         }
     }
-    componentDidMount() {
-        this.getTestOS();
-    }
-
     filterOperatingSystems = (type) => {
-        if(this.state.operatingSystems.length>0)
-            return this.state.operatingSystems.filter(os => os.arch === type);
+        if(this.props.operatingSystems.length>0)
+            return this.props.operatingSystems.filter(os => os.arch === type);
     };
     handleSelectAll = (e) => {
         let isChecked = e.target.checked, type = e.target.value, val = this.filterOperatingSystems(type).map(a => a.id);
@@ -89,10 +84,6 @@ class Step2 extends Component {
                 this.props.handleParent('selectedOS', this.state.selectedOS.filter(item => item !== selected));
             }
         }
-    };
-    getTestOS = async () => {
-        let operatingSystems = await axios.get('http://localhost:6000/api/testrequest/getTestOS').data;
-        this.setState({operatingSystems});
     };
     render() {
         let OS32 = this.filterOperatingSystems('x86'), OS64 = this.filterOperatingSystems('x64'),
@@ -141,8 +132,7 @@ class Step3 extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            paths: [''],
-            operatingSystems
+            paths: ['']
         }
     }
 
@@ -158,7 +148,7 @@ class Step3 extends Component {
     };
 
     render() {
-        const operatingSystems = this.state.operatingSystems;
+        const operatingSystems = this.props.operatingSystems;
         return this.props.step3 ?
             <Animated animationIn="bounceInRight" animationOut="bounceOutLeft" isVisible={true}>
                 {
@@ -376,12 +366,9 @@ class BrowserList extends Component {
 class Review extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            operatingSystems
-        }
     }
     getOperatingSystem = id => {
-        let operatingSystems = this.state.operatingSystems;
+        let operatingSystems = this.props.parentState.operatingSystems;
         let object = operatingSystems.find(obj => obj.id === id);
         return `${object.name} - ${object.type}`;
     };
@@ -498,10 +485,15 @@ export default class TestRequest extends Component {
             },
             browsers: [''],
             eta: undefined,
+            operatingSystems:[]
         };
+    }
+    componentDidMount() {
+        this.getTestOS();
     }
     finishRequest = () => {
         // http://10.192.226.137:6000/api/testrequest/createNewTestRequest
+        let {operatingSystems} = this.state;
         let filteredOS = operatingSystems.filter(os => this.state.selectedOS.includes(os.id));
         let testName = [];
         if (this.state.webcrawler !== '') {
@@ -582,7 +574,10 @@ export default class TestRequest extends Component {
     submitStep = (firstStep, lastStep) => {
         this.setState({[firstStep]: false, [lastStep]: true});
     };
-
+    getTestOS = async () => {
+        let operatingSystems = await axios.get('http://localhost:6000/api/testrequest/getTestOS').data;
+        this.setState({operatingSystems});
+    };
     render() {
         return (
             <div className="mt-3 container">
@@ -590,8 +585,8 @@ export default class TestRequest extends Component {
                     <Card.Header>Test Request</Card.Header>
                     <Card.Body>
                         <Step1 step1={this.state.step1} handleChange={this.handleTestTypeChange} accordionKey={this.state.accordionKey} submitTest={this.submitStep} parentState={this.state}/>
-                        <Step2 step2={this.state.step2} selectedOS={this.state.selectedOS} handleParent={this.handleTestTypeChange} next={this.state.step3} submitOS={this.submitStep}/>
-                        <Step3 step3={this.state.step3} selectedOS={this.state.selectedOS} paths={this.state.paths} gotoReview={this.state.gotoReview} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
+                        <Step2 step2={this.state.step2} selectedOS={this.state.selectedOS} operatingSystems={this.state.operatingSystems} handleParent={this.handleTestTypeChange} next={this.state.step3} submitOS={this.submitStep}/>
+                        <Step3 step3={this.state.step3} selectedOS={this.state.selectedOS} paths={this.state.paths} operatingSystems={this.state.operatingSystems} gotoReview={this.state.gotoReview} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                         <Step4 step4={this.state.step4} parentState={this.state} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                         <Step5 step5={this.state.step5} parentState={this.state} handleParent={this.handleTestTypeChange} submitStep={this.submitStep}/>
                         <Review parentState={this.state} submitStep={this.submitStep} saveRequest={this.finishRequest} handleParent={this.handleTestTypeChange}/>
