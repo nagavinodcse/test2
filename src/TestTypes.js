@@ -3,52 +3,54 @@ import {Form} from "react-bootstrap";
 import axios from "axios";
 
 export default class TestTypes extends Component {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
-            wsh:[],
-            webcrawler:'',
-            testPackages:[]
+            wsh: [],
+            webcrawler: '',
+            testPackages: []
         };
     }
-    componentDidMount(){
+
+    componentDidMount() {
         this.getTestPackages();
     }
-    handleTestType = (key,value) => {
+
+    handleTestType = (key, value) => {
         this.setState({[key]: value});
-        this.props.handleChange(key,value);
+        this.props.handleChange(key, value);
     };
-    handleWsh = e =>{
+    handleWsh = e => {
         const testType = e.target.value;
         const isChecked = e.target.checked;
         if (isChecked) {
             this.setState({wsh: [...this.state.wsh, testType]});
-            this.props.handleChange('wsh',[...this.state.wsh, testType]);
+            this.props.handleChange('wsh', [...this.state.wsh, testType]);
         } else {
             this.setState({wsh: this.state.wsh.filter(item => item !== testType)});
-            this.props.handleChange('wsh',this.state.wsh.filter(item => item !== testType));
+            this.props.handleChange('wsh', this.state.wsh.filter(item => item !== testType));
         }
     };
     handleWshCheckbox = e => {
-        let vals = (e.target.checked) ? ['WSH-JSCRIPT','WSH-VBSCRIPT'] : [];
+        let vals = (e.target.checked) ? ['WSH-JSCRIPT', 'WSH-VBSCRIPT'] : [];
         this.setState({wsh: vals});
-        this.props.handleChange('wsh',vals);
+        this.props.handleChange('wsh', vals);
     };
     handleWCCheckbox = e => {
         let val = e.target.checked ? e.target.value : '';
         this.setState({webcrawler: val});
-        this.props.handleChange('webcrawler',val);
+        this.props.handleChange('webcrawler', val);
     };
-    getTestPackages = () => {
-        axios.get('http://localhost:6000/api/testrequest/getTestPackages').then(res=>{
-           this.setState({testPackages:res.data});
-        });    
-    }
-    componentDidUpdate(prevProps, prevState,snapshot) {
+    getTestPackages = async () => {
+        let testPackages = await axios.get('http://localhost:6000/api/testrequest/getTestPackages').data;
+        this.setState({testPackages});
+    };
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.selectedOption !== this.props.selectedOption) {
-            this.setState({wsh: [],webcrawler:''});
-            this.props.handleChange('wsh',[]);
-            this.props.handleChange('webcrawler','');
+            this.setState({wsh: [], webcrawler: ''});
+            this.props.handleChange('wsh', []);
+            this.props.handleChange('webcrawler', '');
         }
     }
 
@@ -59,19 +61,29 @@ export default class TestTypes extends Component {
             <div>
                 <h1>{selectedOption}</h1>
                 {
-                    testPackages.map((testPackage, i) =>
-                            <Form.Check key={`testPackage-${i}`} custom type="checkbox" id={`testPackage-${testPackage.id}`} onChange={this.handleWCCheckbox} checked={this.props.webcrawler === testPackage.name} value={testPackage.name} id={testPackage.name} label={testPackage.name}/>)
+                    testPackages.map((testPackage, i) =>(
+                        <>
+                        <Form.Check key={`testPackage-${i}`} custom type="checkbox" id={`testPackage-${testPackage.id}`} onChange={this.handleWCCheckbox} checked={this.props.webcrawler === testPackage.name} value={testPackage.name} label={testPackage.name}/>
+                        <div className="col-sm-6">
+                            {
+                                testPackage.testPackage.map((tpk, i) =>
+                                    <Form.Check custom type="radio" disabled={this.props.webcrawler === tpk.name } name={tpk.name} onChange={(e) => this.handleTestType(tpk.name.toLowerCase(), e.target.value)} checked={this.props.webcrawler === 'WEBCRAWLER-100'} value={tpk.runnableUnit} id={`testPackage-${tpk.id}`} label={tpk.runnableUnit}/>
+                                )
+                            }
+                        </div>
+                        </>
+                    ))
                 }
-                <Form.Check custom type="checkbox" onChange={this.handleWshCheckbox} checked={this.props.wsh.includes('WSH-JSCRIPT') && this.props.wsh.includes('WSH-VBSCRIPT')} id={`wsh`} label="WSH"/>
+                {/*<Form.Check custom type="checkbox" onChange={this.handleWshCheckbox} checked={this.props.wsh.includes('WSH-JSCRIPT') && this.props.wsh.includes('WSH-VBSCRIPT')} id={`wsh`} label="WSH"/>
                 <div className="col-sm-6">
                     <Form.Check custom type="checkbox" onChange={this.handleWsh} name="wsh[]" checked={this.props.wsh.includes('WSH-JSCRIPT')} value="WSH-JSCRIPT" id={`wsh-jscript`} label="JScript"/>
                     <Form.Check custom type="checkbox" onChange={this.handleWsh} name="wsh[]" checked={this.props.wsh.includes('WSH-VBSCRIPT')} value="WSH-VBSCRIPT" id={`wsh-vbscript`} label="VBScript"/>
                 </div>
                 <Form.Check custom type="checkbox" onChange={this.handleWCCheckbox} checked={this.props.webcrawler === 'WEBCRAWLER'} value="WEBCRAWLER" id={`webcrawler`} label="Web Crawler"/>
                 <div className="col-sm-6">
-                    <Form.Check custom type="radio" disabled={this.props.webcrawler === 'WEBCRAWLER'} name="webcrawler" onChange={(e)=>this.handleTestType('webcrawler',e.target.value)} checked={this.props.webcrawler === 'WEBCRAWLER-100'} value="WEBCRAWLER-100" id={`webcrawler-100`} label="Top 100 Sites"/>
-                    <Form.Check custom type="radio" disabled={this.props.webcrawler === 'WEBCRAWLER'} name="webcrawler" onChange={(e)=>this.handleTestType('webcrawler',e.target.value)} checked={this.props.webcrawler === 'WEBCRAWLER-50'} value="WEBCRAWLER-50" id={`webcrawler-50`} label="Top 50 Sites"/>
-                </div>
+                    <Form.Check custom type="radio" disabled={this.props.webcrawler === 'WEBCRAWLER'} name="webcrawler" onChange={(e) => this.handleTestType('webcrawler', e.target.value)} checked={this.props.webcrawler === 'WEBCRAWLER-100'} value="WEBCRAWLER-100" id={`webcrawler-100`} label="Top 100 Sites"/>
+                    <Form.Check custom type="radio" disabled={this.props.webcrawler === 'WEBCRAWLER'} name="webcrawler" onChange={(e) => this.handleTestType('webcrawler', e.target.value)} checked={this.props.webcrawler === 'WEBCRAWLER-50'} value="WEBCRAWLER-50" id={`webcrawler-50`} label="Top 50 Sites"/>
+                </div>*/}
             </div> : '';
     }
 }

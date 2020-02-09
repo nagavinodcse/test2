@@ -5,7 +5,7 @@ import moment from 'moment';
 import axios from 'axios';
 import './animate.css';
 import {Animated} from "react-animated-css";
-import {operatingSystems} from "./os.json";
+// import {operatingSystems} from "./os.json";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
@@ -54,13 +54,17 @@ class Step2 extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            operatingSystems,
+            operatingSystems:[],
             selectedOS: []
         }
     }
+    componentDidMount() {
+        this.getTestOS();
+    }
 
     filterOperatingSystems = (type) => {
-        return this.state.operatingSystems.filter(os => os.type === type);
+        if(this.state.operatingSystems.length>0)
+            return this.state.operatingSystems.filter(os => os.arch === type);
     };
     handleSelectAll = (e) => {
         let isChecked = e.target.checked, type = e.target.value, val = this.filterOperatingSystems(type).map(a => a.id);
@@ -86,7 +90,10 @@ class Step2 extends Component {
             }
         }
     };
-
+    getTestOS = async () => {
+        let operatingSystems = await axios.get('http://localhost:6000/api/testrequest/getTestOS').data;
+        this.setState({operatingSystems});
+    };
     render() {
         let OS32 = this.filterOperatingSystems('x86'), OS64 = this.filterOperatingSystems('x64'),
             OS32ids = OS32.map(a => a.id), OS64ids = OS64.map(a => a.id);
