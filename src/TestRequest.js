@@ -93,14 +93,14 @@ class Step2 extends Component {
                 <h3>Operating System to Run</h3>
                 <div className="row">
                     <div className="col-sm-4">
-                        <Form.Check custom type="checkbox" id="selectOS32" checked={this.state.selectedOS.length > 0 && OS32ids.every(item => this.state.selectedOS.includes(item))} onChange={this.handleSelectAll} value="x86" label="x86 (Select all)"/>
+                        <Form.Check custom type="checkbox" id="selectOS32" checked={this.state.selectedOS.length > 0 && OS32ids.length > 0 && OS32ids.every(item => this.state.selectedOS.includes(item))} onChange={this.handleSelectAll} value="x86" label="x86 (Select all)"/>
                         { OS32ids.length ?
                             OS32.map((os, i) =>
                                 <Form.Check key={`OS32-${i}`} custom type="checkbox" id={`os32-${os.id}`} onChange={this.handleSelectOS} checked={this.state.selectedOS.includes(os.id)} value={os.id} label={os.name}/>)
                         :""}
                     </div>
                     <div className="col-sm-4">
-                        <Form.Check custom type="checkbox" id="selectOS64" checked={this.state.selectedOS.length > 0 && OS64ids.every(item => this.state.selectedOS.includes(item))} onChange={this.handleSelectAll} value="x64" label="x64 (Select all)"/>
+                        <Form.Check custom type="checkbox" id="selectOS64" checked={this.state.selectedOS.length > 0 && OS64ids.length > 0  && OS64ids.every(item => this.state.selectedOS.includes(item))} onChange={this.handleSelectAll} value="x64" label="x64 (Select all)"/>
                         {OS64ids.length ?
                             OS64.map((os, i) =>
                                 <Form.Check key={`OS64-${i}`} custom type="checkbox" id={`os64-${os.id}`} onChange={this.handleSelectOS} checked={this.state.selectedOS.includes(os.id)} value={os.id} label={os.name}/>)
@@ -370,7 +370,7 @@ class Review extends Component {
     getOperatingSystem = id => {
         let operatingSystems = this.props.parentState.operatingSystems;
         let object = operatingSystems.find(obj => obj.id === id);
-        return `${object.name} - ${object.type}`;
+        return `${object.name} - ${object.arch}`;
     };
     handleReview = step => {
         this.props.handleParent('gotoReview', true);
@@ -392,7 +392,7 @@ class Review extends Component {
                                 </Card.Title>
                                 <ul>
                                     <li>Selected Option: {parent.selectedOption}</li>
-                                    <li>Wsh: {parent.wsh.join(',')}</li>
+                                    {/* <li>Wsh: {parent.wsh.join(',')}</li> */}
                                     <li>WebCrawler: {parent.webcrawler !== '' ? parent.webcrawler : 'Not Selected'}</li>
                                 </ul>
                             </Card.Body>

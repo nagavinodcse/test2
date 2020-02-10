@@ -42,7 +42,7 @@ export default class TestTypes extends Component {
         this.props.handleChange('webcrawler', val);
     };
     getTestPackages = () => {
-        axios.get('http://localhost:6000/api/testrequest/getTestPackages').then(res=> this.setState({testPackages:res.data}));
+        axios.get('http://10.192.226.137:6000/api/testrequest/getTestPackages').then(res=> this.setState({testPackages:res.data}));
     };
 
     componentDidUpdate(prevProps, prevState, snapshot) {
