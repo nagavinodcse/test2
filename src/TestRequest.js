@@ -1,12 +1,11 @@
 import React, {Component} from 'react';
 import {Button, Card, Col, Form, Row} from "react-bootstrap";
-import TestTypes from "./TestTypes";
-import moment from 'moment';
-import axios from 'axios';
-import './animate.css';
+import TestTypes from "./TestTypes";//Import TestTypes component from TestTypes.js
+import moment from 'moment';//Library to parse, validate, manipulate, and display dates and times in react.js.
+import axios from 'axios';//Library that helps us make http requests to external resources
+import './animate.css';//Library for cross-browser animations.
 import {Animated} from "react-animated-css";
-// import {operatingSystems} from "./os.json";
-import DatePicker from "react-datepicker";
+import DatePicker from "react-datepicker";//Component for date picker widget.
 import "react-datepicker/dist/react-datepicker.css";
 
 //Component to select the testType Ex:- Official/Private/MTP
@@ -61,6 +60,7 @@ class Step2 extends Component {
         if(this.props.operatingSystems.length>0)
             return this.props.operatingSystems.filter(os => os.arch === type);
     };
+    //Method to handle changes when all the available OS are selected.
     handleSelectAll = (e) => {
         let isChecked = e.target.checked, type = e.target.value, val = this.filterOperatingSystems(type).map(a => a.id);
         if (isChecked) {
@@ -71,6 +71,7 @@ class Step2 extends Component {
             this.props.handleParent('selectedOS', this.state.selectedOS.filter(item => val.indexOf(item) === -1));
         }
     };
+    //Method to handle changes when a particuar OS is selected.
     handleSelectOS = (e) => {
         let verifyCheck = e.target.checked, selected = parseInt(e.target.value);
         if (verifyCheck) {
@@ -85,6 +86,7 @@ class Step2 extends Component {
             }
         }
     };
+    //Transforming react components into DOM (Document Object Model)
     render() {
         let OS32 = this.filterOperatingSystems('x86'), OS64 = this.filterOperatingSystems('x64'),
             OS32ids = OS32 ? OS32.map(a => a.id) : [], OS64ids = OS64 ? OS64.map(a => a.id):[];
@@ -264,7 +266,7 @@ class Step5 extends Component {
         this.props.handleParent('eta', selectedDay);
         let d = moment(selectedDay);
         if (d.isValid()) {
-            let minTime = moment().add(1, 'h').unix(), reqTime = (d.unix() >= minTime);
+            let minTime = moment().add(1, 'h').unix(), reqTime = (d.unix() >= minTime); 
             this.setState({checkTime: reqTime});
         }
     };
@@ -488,6 +490,7 @@ export default class TestRequest extends Component {
             operatingSystems:[]
         };
     }
+    //To fetch data from API we put the API call in componentDidMount
     componentDidMount(){
         this.getTestOS();
     }
@@ -502,41 +505,8 @@ export default class TestRequest extends Component {
         if(this.state.wsh.length > 0){
             testName.push('wsh');
         }
-        /* fetch('http://localhost:6000/api/testrequest/createNewTestRequest', {
-             method: "POST",
-             headers: {'Content-Type': 'application/json'},
-             body:JSON.stringify({
-                    os: filteredOS,
-                    testName,
-                    completeBy: moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
-                })
-         }).then(() =>{
-                alert('Test Request created successfully...!');
-                window.location.reload();
-             }) ;*/
-             /* var myHeaders = new Headers();
-             myHeaders.append("Content-Type", "application/json");
-             
-             var raw = JSON.stringify({"os":[{"name":"RS5","arch":"x86"}],"testName":["webcrawler"],"completeBy":"2019-12-12 4.00.00 PM"});
-             
-             var requestOptions = {
-               method: 'POST',
-               headers: myHeaders,
-               body: raw,
-               redirect: 'follow'
-             };
-             
-             fetch("http://localhost:6000/api/testrequest/createNewTestRequest", requestOptions)
-               .then(response => response.text())
-               .then(result => console.log(result))
-               .catch(error => console.log('error', error));    
-        console.log(JSON.stringify({"os":[{"name":"RS5","arch":"x86"}],"testName":["webcrawler"],"completeBy":"2019-12-12 4.00.00 PM"}));
-        console.log({
-             "os": filteredOS,
-             "testName":testName,
-             "completeBy": moment(this.state.eta).format("YYYY-MM-DD HH:mm:ss")
-         }) */
-         axios.post('http://localhost:6000/api/testrequest/createNewTestRequest',{
+       //API call to post the selected options to controller
+         axios.post('http://10.192.226.137:8181/api/testrequest/createNewTestRequest',{
             selectedOption: this.state.selectedOption,
             wsh: this.state.wsh,
             webcrawler: this.state.webcrawler, 
@@ -574,8 +544,9 @@ export default class TestRequest extends Component {
     submitStep = (firstStep, lastStep) => {
         this.setState({[firstStep]: false, [lastStep]: true});
     };
-    getTestOS =async () => {
-        await axios.get('http://localhost:6000/api/testrequest/getTestOS').then(res=>this.setState({operatingSystems:res.data}));
+    //API call to get the OS list from controller
+    getTestOS = async () => {
+        await axios.get('http://10.192.226.137:8181/api/testrequest/getTestOS').then(res=>this.setState({operatingSystems:res.data}));
     };
     render() {
         return (

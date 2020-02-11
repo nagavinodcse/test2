@@ -11,7 +11,7 @@ export default class TestTypes extends Component {
             testPackages: []
         };
     }
-
+//To fetch data from API we place the API call in componentDidMount
     componentDidMount() {
         this.getTestPackages();
     }
@@ -41,8 +41,9 @@ export default class TestTypes extends Component {
         this.setState({webcrawler: val});
         this.props.handleChange('webcrawler', val);
     };
+    //API call to get the test packages from controller
     getTestPackages = () => {
-        axios.get('http://10.192.226.137:6000/api/testrequest/getTestPackages').then(res=> this.setState({testPackages:res.data}));
+        axios.get('http://10.192.226.137:8181/api/testrequest/getTestPackages').then(res=> this.setState({testPackages:res.data}));
     };
 
     componentDidUpdate(prevProps, prevState, snapshot) {
