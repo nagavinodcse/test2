@@ -17,6 +17,7 @@ class Step1 extends Component {
         }
     }
 
+//Transforming react components into DOM (Document Object Model)
     render() {
         return this.props.parentState.step1 ? <Animated animationIn="bounceInRight" animationOut="bounceOutLeft" isVisible={true}>
             <Button type="button" onClick={() => {
@@ -48,7 +49,7 @@ class Step1 extends Component {
     }
 }
 
-//Component to select the OS Ex:- RS1_x64, RS1_x86
+//Component to select the OS Ex:- RS1_x64, RS1_x86.
 class Step2 extends Component {
     constructor(props) {
         super(props);
@@ -56,8 +57,9 @@ class Step2 extends Component {
             selectedOS: []
         }
     }
+    //Method to filter operating systems based on the architecture type.
     filterOperatingSystems = (type) => {
-        if(this.props.operatingSystems.length>0)
+        if(this.props.operatingSystems.length > 0)
             return this.props.operatingSystems.filter(os => os.arch === type);
     };
     //Method to handle changes when all the available OS are selected.
@@ -137,7 +139,7 @@ class Step3 extends Component {
             paths: ['']
         }
     }
-
+//
     handlePath = i => (e) => {
         let paths = [...this.state.paths], val = e.target.value;
         if (val === '') {
@@ -148,7 +150,7 @@ class Step3 extends Component {
         this.setState({paths});
         this.props.handleParent('paths', paths);
     };
-
+//
     render() {
         const operatingSystems = this.props.operatingSystems;
         return this.props.step3 ?
@@ -192,7 +194,7 @@ class Step4 extends Component {
             }
         }
     }
-
+//
     handleSettings = (e) => {
         let verifyCheck = e.target.checked, selected = e.target.id;
         let settings = {...this.state.settings};
@@ -206,6 +208,7 @@ class Step4 extends Component {
             this.props.handleParent('settings', settings);
         }
     };
+//    
     showNext = () => {
         let html = '';
         const {settings, browsers} = this.props.parentState;
@@ -221,6 +224,7 @@ class Step4 extends Component {
         return html;
     };
 
+//Transforming react components into DOM (Document Object Model)
     render() {
         return this.props.step4 ?
             <Animated animationIn="bounceInRight" animationOut="bounceOutLeft" isVisible={true}>
@@ -260,7 +264,7 @@ class Step5 extends Component {
             checkTime: true
         }
     }
-
+//
     handleDayChange = selectedDay => {
         this.setState({eta: selectedDay});
         this.props.handleParent('eta', selectedDay);
@@ -270,7 +274,7 @@ class Step5 extends Component {
             this.setState({checkTime: reqTime});
         }
     };
-
+//Transforming react components into DOM (Document Object Model)
     render() {
         const {eta, gotoReview} = this.props.parentState;
         return this.props.step5 ?
@@ -311,6 +315,7 @@ class Step5 extends Component {
     }
 }
 
+//Component to add browser name or application name when gflags option is selected.
 class BrowserList extends Component {
     constructor(props) {
         super(props);
@@ -318,12 +323,13 @@ class BrowserList extends Component {
             browsers: ['']
         }
     }
-
+//Method to add additional browser or application.
     handleAdd = () => {
         let browsers = this.state.browsers.concat(['']);
         this.setState({browsers});
         this.props.handleChange('browsers', browsers);
     };
+//Method to delete the selected browser or application.
     handleDelete = i => e => {
         let browsers = [
             ...this.state.browsers.slice(0, i),
@@ -332,13 +338,14 @@ class BrowserList extends Component {
         this.setState({browsers});
         this.props.handleChange('browsers', browsers);
     };
+//
     handleChange = i => e => {
         let browsers = [...this.state.browsers];
         browsers[i] = e.target.value;
         this.setState({browsers});
         this.props.handleChange('browsers', browsers);
     };
-
+//Transforming react components into DOM (Document Object Model)
     render() {
         return this.props.gflag ?
             <>
@@ -364,23 +371,27 @@ class BrowserList extends Component {
             : '';
     }
 }
-
+//Component to review and edit the options in all the steps.
 class Review extends Component {
     constructor(props) {
         super(props);
     }
+//
     getOperatingSystem = id => {
         let operatingSystems = this.props.parentState.operatingSystems;
         let object = operatingSystems.find(obj => obj.id === id);
         return `${object.name} - ${object.arch}`;
     };
+//
     handleReview = step => {
         this.props.handleParent('gotoReview', true);
         this.props.submitStep('review', step);
     };
+//
     submitReview = () =>{
         this.props.saveRequest();
     };
+//Transforming react components into DOM (Document Object Model)
     render() {
         let parent = this.props.parentState;
         return parent.review ?
@@ -463,7 +474,7 @@ class Review extends Component {
             : ''
     }
 }
-
+//Parent class which 
 export default class TestRequest extends Component {
     constructor(props) {
         super(props);
@@ -490,12 +501,14 @@ export default class TestRequest extends Component {
             operatingSystems:[]
         };
     }
-    //To fetch data from API we put the API call in componentDidMount
+//To fetch data from API we put the API call in componentDidMount.
     componentDidMount(){
         this.getTestOS();
     }
+
+//Method to submit all the selected values to the controller.
     finishRequest = () => {
-        // http://10.192.226.137:6000/api/testrequest/createNewTestRequest
+       
         let {operatingSystems} = this.state;
         let filteredOS = operatingSystems.filter(os => this.state.selectedOS.includes(os.id));
         let testName = [];
@@ -505,7 +518,7 @@ export default class TestRequest extends Component {
         if(this.state.wsh.length > 0){
             testName.push('wsh');
         }
-       //API call to post the selected options to controller
+    //API call to post the selected options to controller.
          axios.post('http://10.192.226.137:8181/api/testrequest/createNewTestRequest',{
             selectedOption: this.state.selectedOption,
             wsh: this.state.wsh,
@@ -521,12 +534,15 @@ export default class TestRequest extends Component {
             window.location.reload();
         });
     };
+
+//
     handleTestTypeChange = (testType, val) => {
         this.setState({[testType]: val});
         if (testType === "wsh" || testType === "webcrawler") {
             this.setAccordionKey(testType);
         }
     };
+//
     setAccordionKey = testType => {
         let accordionKey = this.state.accordionKey;
         switch (testType) {
@@ -541,13 +557,17 @@ export default class TestRequest extends Component {
         }
         this.setState({accordionKey});
     };
+//Method to hide the previous slide and move to the next slide
     submitStep = (firstStep, lastStep) => {
         this.setState({[firstStep]: false, [lastStep]: true});
     };
-    //API call to get the OS list from controller
+
+//API call to get the OS list from controller
     getTestOS = async () => {
         await axios.get('http://10.192.226.137:8181/api/testrequest/getTestOS').then(res=>this.setState({operatingSystems:res.data}));
     };
+
+//Transforming react components into DOM (Document Object Model)
     render() {
         return (
             <div className="mt-3 container">
