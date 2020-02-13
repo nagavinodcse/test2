@@ -1,14 +1,14 @@
 import React, {Component} from 'react';
 import {Button, Card, Col, Form, Row} from "react-bootstrap";
 import TestTypes from "./TestTypes";// Adding the test types to use in Step1
-import moment from 'moment';//Library to parse, validate, manipulate, and display dates and times in react.js.
-import axios from 'axios';//Library that helps us make http requests to external resources
-import './animate.css';//CSS Library for cross-browser animations.
+import moment from 'moment';// Library to parse, validate, manipulate, and display dates and times in react.js.
+import axios from 'axios';// Library that helps us make http requests to external resources
+import './animate.css';// CSS Library for cross-browser animations.
 import {Animated} from "react-animated-css"; // Apply animations to components
-import DatePicker from "react-datepicker";//Component for date picker widget.
-import "react-datepicker/dist/react-datepicker.css"; // styles for Date picker
+import DatePicker from "react-datepicker";// Component for date picker widget.
+import "react-datepicker/dist/react-datepicker.css"; // Styles for Date picker
 
-//Component to select the testType Ex:- Official/Private/MTP
+// Component to select the testType Ex:- Official/Private/MTP
 class Step1 extends Component {
     constructor(props) {
         super(props);
@@ -57,7 +57,7 @@ class Step1 extends Component {
     }
 }
 
-//Component to select the OS Ex:- RS1_x64, RS1_x86.
+// Component to select the OS Ex:- RS1_x64, RS1_x86.
 class Step2 extends Component {
     constructor(props) {
         super(props);
@@ -66,12 +66,12 @@ class Step2 extends Component {
         }
     }
 
-    //Method to filter operating systems based on the architecture type.
+    // Method to filter operating systems based on the architecture type.
     filterOperatingSystems = (type) => {
         if (this.props.operatingSystems.length > 0)
             return this.props.operatingSystems.filter(os => os.arch === type);
     };
-    //Method to handle changes when all the available OS are selected.
+    // Method to handle changes when all the available OS are selected.
     handleSelectAll = (e) => {
         let isChecked = e.target.checked, type = e.target.value, val = this.filterOperatingSystems(type).map(a => a.id);
         if (isChecked) {
@@ -82,7 +82,7 @@ class Step2 extends Component {
             this.props.handleParent('selectedOS', this.state.selectedOS.filter(item => val.indexOf(item) === -1));
         }
     };
-    //Method to handle changes when a particular OS is selected.
+    // Method to handle changes when a particular OS is selected.
     handleSelectOS = (e) => {
         let verifyCheck = e.target.checked, selected = parseInt(e.target.value);
         if (verifyCheck) {
@@ -98,9 +98,9 @@ class Step2 extends Component {
         }
     };
 
-    //Transforming react components into DOM (Document Object Model)
+    // Transforming react components into DOM (Document Object Model)
     render() {
-        // parsing the x86 and x64 OS
+        // Parsing the x86 and x64 OS
         let OS32 = this.filterOperatingSystems('x86'), OS64 = this.filterOperatingSystems('x64'),
             OS32ids = OS32 ? OS32.map(a => a.id) : [], OS64ids = OS64 ? OS64.map(a => a.id) : [];
         return this.props.step2 ?
@@ -143,7 +143,7 @@ class Step2 extends Component {
     }
 }
 
-//Component to provide .msu package path Ex: \\winsehotfix\hotfixes\Windows10\RS1\RTM\KB4537764\V1.001\free\NEU\X64\Windows10.0-KB4537764-x64.msu
+// Component to provide .msu package path Ex: \\winsehotfix\hotfixes\Windows10\RS1\RTM\KB4537764\V1.001\free\NEU\X64\Windows10.0-KB4537764-x64.msu
 class Step3 extends Component {
     constructor(props) {
         super(props);
@@ -152,7 +152,7 @@ class Step3 extends Component {
         }
     }
 
-// saving the paths to state and sending to parent
+// Saving the paths to state and sending to parent
     handlePath = i => (e) => {
         let paths = [...this.state.paths], val = e.target.value;
         if (val === '') {
@@ -197,7 +197,7 @@ class Step3 extends Component {
     }
 }
 
-//Component to enable Postmortem debugging and provide gflags application name Ex:- iexplore.exe
+// Component to enable Postmortem debugging and provide gflags application name Ex:- iexplore.exe
 class Step4 extends Component {
     constructor(props) {
         super(props);
@@ -209,7 +209,7 @@ class Step4 extends Component {
         }
     }
 
-// saving the settings to state and sending to parent component
+// Saving the settings to state and sending to parent component
     handleSettings = (e) => {
         let verifyCheck = e.target.checked, selected = e.target.id;
         let settings = {...this.state.settings};
@@ -223,7 +223,7 @@ class Step4 extends Component {
             this.props.handleParent('settings', settings);
         }
     };
-// handling different conditions to show the next button
+// Handling different conditions to show the next button
     showNext = () => {
         let html = '';
         const {settings, browsers} = this.props.parentState;
@@ -239,7 +239,7 @@ class Step4 extends Component {
         return html;
     };
 
-//Transforming react components into DOM (Document Object Model)
+// Transforming react components into DOM (Document Object Model)
     render() {
         return this.props.step4 ?
             <Animated animationIn="bounceInRight" animationOut="bounceOutLeft" isVisible={true}>
@@ -270,7 +270,7 @@ class Step4 extends Component {
     }
 }
 
-//Component to select estimated time of test completion. ETA should be atleast 1 hour from current system time.
+// Component to select estimated time of test completion. ETA should be atleast 1 hour from current system time.
 class Step5 extends Component {
     constructor(props) {
         super(props);
@@ -280,7 +280,7 @@ class Step5 extends Component {
         }
     }
 
-// to save the date picker value to state and sending to parent component
+// To save the date picker value to state and sending to parent component
     handleDayChange = selectedDay => {
         this.setState({eta: selectedDay});
         this.props.handleParent('eta', selectedDay);
@@ -291,7 +291,7 @@ class Step5 extends Component {
         }
     };
 
-//Transforming react components into DOM (Document Object Model)
+// Transforming react components into DOM (Document Object Model)
     render() {
         const {eta, gotoReview} = this.props.parentState;
         return this.props.step5 ?
@@ -305,8 +305,6 @@ class Step5 extends Component {
                                     showTimeSelect
                                     minDate={new Date()}
                                     timeIntervals={15}
-                            /*minTime={moment().add(60, 'm').toDate()}
-                            maxTime={moment().endOf('day').toDate()}*/
                                     dateFormat="MMMM d, yyyy h:mm aa"
                         />
                         {
@@ -335,7 +333,7 @@ class Step5 extends Component {
     }
 }
 
-//Component to add browser name or application name when gflags option is selected.
+// Component to add browser name or application name when gflags option is selected.
 class BrowserList extends Component {
     constructor(props) {
         super(props);
@@ -344,13 +342,13 @@ class BrowserList extends Component {
         }
     }
 
-//Method to add additional browser or application.
+// Method to add additional browser or application.
     handleAdd = () => {
         let browsers = this.state.browsers.concat(['']);
         this.setState({browsers});
         this.props.handleChange('browsers', browsers);
     };
-//Method to delete the selected browser or application.
+// Method to delete the selected browser or application.
     handleDelete = i => e => {
         let browsers = [
             ...this.state.browsers.slice(0, i),
@@ -359,7 +357,7 @@ class BrowserList extends Component {
         this.setState({browsers});
         this.props.handleChange('browsers', browsers);
     };
-// to save the browser list
+// To save the browser list
     handleChange = i => e => {
         let browsers = [...this.state.browsers];
         browsers[i] = e.target.value;
@@ -367,7 +365,7 @@ class BrowserList extends Component {
         this.props.handleChange('browsers', browsers);
     };
 
-//Transforming react components into DOM (Document Object Model)
+// Transforming react components into DOM (Document Object Model)
     render() {
         return this.props.gflag ?
             <>
@@ -395,25 +393,25 @@ class BrowserList extends Component {
     }
 }
 
-//Component to review and edit the options in all the steps.
+// Component to review and edit the options in all the steps.
 class Review extends Component {
-// parsing the os selected and showing in text format
+// Parsing the os selected and showing in text format
     getOperatingSystem = id => {
         let operatingSystems = this.props.parentState.operatingSystems;
         let object = operatingSystems.find(obj => obj.id === id);
         return `${object.name} - ${object.arch}`;
     };
-// saving the review button action in local state and parent state
+// Saving the review button action in local state and parent state
     handleReview = step => {
         this.props.handleParent('gotoReview', true);
         this.props.submitStep('review', step);
     };
-// calling the parent component method to save the test request
+// Calling the parent component method to save the test request
     submitReview = () => {
         this.props.saveRequest();
     };
 
-//Transforming react components into DOM (Document Object Model)
+// Transforming react components into DOM (Document Object Model)
     render() {
         let parent = this.props.parentState;
         return parent.review ?
@@ -498,7 +496,7 @@ class Review extends Component {
     }
 }
 
-//Parent class of all steps to save all the data and save the test request.
+// Parent class of all steps to save all the data and save the test request.
 export default class TestRequest extends Component {
     constructor(props) {
         super(props);
@@ -526,12 +524,12 @@ export default class TestRequest extends Component {
         };
     }
 
-//To fetch OS data from DB we put the API call in componentDidMount.
+// To fetch OS data from DB we put the API call in componentDidMount.
     componentDidMount() {
         this.getTestOS();
     }
 
-//Method to submit all the selected values to the controller.
+// Method to submit all the selected values to the controller.
     finishRequest = () => {
 
         let {operatingSystems} = this.state;
@@ -543,7 +541,7 @@ export default class TestRequest extends Component {
         if (this.state.wsh.length > 0) {
             testName.push('wsh');
         }
-        //API call to post the selected options to controller.
+ // API call to post the selected options to controller.
         axios.post('http://10.192.226.137:8181/api/testrequest/createNewTestRequest', {
             selectedOption: this.state.selectedOption,
             wsh: this.state.wsh,
@@ -560,21 +558,21 @@ export default class TestRequest extends Component {
         });
     };
 
-// handling the test types of step1
+// Handling the test types of step1
     handleTestTypeChange = (testType, val) => {
         this.setState({[testType]: val});
     };
-//Method to hide the previous slide and move to the next slide
+// Method to hide the previous slide and move to the next slide
     submitStep = (firstStep, lastStep) => {
         this.setState({[firstStep]: false, [lastStep]: true});
     };
 
-//API call to get the OS list from controller
+// API call to get the OS list from controller
     getTestOS = async () => {
         await axios.get('http://10.192.226.137:8181/api/testrequest/getTestOS').then(res => this.setState({operatingSystems: res.data}));
     };
 
-//Transforming react components into DOM (Document Object Model)
+// Transforming react components into DOM (Document Object Model)
     render() {
         return (
             <div className="mt-3 container">

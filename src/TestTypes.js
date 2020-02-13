@@ -12,7 +12,7 @@ export default class TestTypes extends Component {
             testPackages: []
         };
     }
-//To fetch Test Packages from API we place the API call in componentDidMount
+// To fetch Test Packages from API we place the API call in componentDidMount
     componentDidMount() {
         this.getTestPackages();
     }
@@ -21,7 +21,7 @@ export default class TestTypes extends Component {
         this.setState({[key]: value});
         this.props.handleChange(key, value);
     };
-// to add the WSH test packages to state
+// To add the WSH test packages to state
     handleWsh = e => {
         const testType = e.target.value;
         const isChecked = e.target.checked;
@@ -33,19 +33,19 @@ export default class TestTypes extends Component {
             this.props.handleChange('wsh', this.state.wsh.filter(item => item !== testType));
         }
     };
-// to handle the wsh check and uncheck status in the state
+// To handle the WSH check and uncheck status in the state
     handleWshCheckbox = e => {
         let vals = (e.target.checked) ? ['WSH-JSCRIPT', 'WSH-VBSCRIPT'] : [];
         this.setState({wsh: vals});
         this.props.handleChange('wsh', vals);
     };
-//  To handle the Web crawler properties
+//  To handle the Web Crawler properties
     handleWCCheckbox = e => {
         let val = e.target.checked ? e.target.value : '';
         this.setState({webcrawler: val});
         this.props.handleChange('webcrawler', val);
     };
-//API call to get the test packages from controller
+// API call to get the test packages from controller
     getTestPackages = () => {
         axios.get('http://10.192.226.137:8181/api/testrequest/getTestPackages').then(res=> this.setState({testPackages:res.data}));
     };
@@ -57,7 +57,7 @@ export default class TestTypes extends Component {
             this.props.handleChange('webcrawler', '');
         }
     }
-//Transforming react components into DOM (Document Object Model)
+// Transforming react components into DOM (Document Object Model)
     render() {
         const {selectedOption} = this.props;
         const {testPackages} = this.state;
