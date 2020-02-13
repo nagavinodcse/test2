@@ -1,8 +1,8 @@
 import React, {Component} from "react";
-import {Form} from "react-bootstrap";
-import axios from "axios";
+import {Form} from "react-bootstrap"; // To use form components from react bootstrap
+import axios from "axios"; // Library used to make api calls
 
-//
+// Test Packages list of checkboxes in Step 1
 export default class TestTypes extends Component {
     constructor(props) {
         super(props);
@@ -12,16 +12,16 @@ export default class TestTypes extends Component {
             testPackages: []
         };
     }
-//To fetch data from API we place the API call in componentDidMount
+//To fetch Test Packages from API we place the API call in componentDidMount
     componentDidMount() {
         this.getTestPackages();
     }
-//
+// To add the test types to state
     handleTestType = (key, value) => {
         this.setState({[key]: value});
         this.props.handleChange(key, value);
     };
-//
+// to add the WSH test packages to state
     handleWsh = e => {
         const testType = e.target.value;
         const isChecked = e.target.checked;
@@ -33,13 +33,13 @@ export default class TestTypes extends Component {
             this.props.handleChange('wsh', this.state.wsh.filter(item => item !== testType));
         }
     };
-//
+// to handle the wsh check and uncheck status in the state
     handleWshCheckbox = e => {
         let vals = (e.target.checked) ? ['WSH-JSCRIPT', 'WSH-VBSCRIPT'] : [];
         this.setState({wsh: vals});
         this.props.handleChange('wsh', vals);
     };
-//  
+//  To handle the Web crawler properties
     handleWCCheckbox = e => {
         let val = e.target.checked ? e.target.value : '';
         this.setState({webcrawler: val});
@@ -49,7 +49,7 @@ export default class TestTypes extends Component {
     getTestPackages = () => {
         axios.get('http://10.192.226.137:8181/api/testrequest/getTestPackages').then(res=> this.setState({testPackages:res.data}));
     };
-//
+// Verify and select the check boxes of webcrawler or wsh on component update
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.selectedOption !== this.props.selectedOption) {
             this.setState({wsh: [], webcrawler: ''});
