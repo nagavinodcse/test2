@@ -73,8 +73,9 @@ export default class TestTypes extends Component {
                                 testPackage.testPackage.map((tpk, i) =>
                                     <Form.Check key={`subPackage-${i}`} custom type="radio" disabled={this.props.webcrawler === tpk.name } name={tpk.name} onChange={(e) => this.handleTestType(tpk.name.toLowerCase(), e.target.value)} checked={this.props.webcrawler === tpk.runnableUnit} value={tpk.runnableUnit} id={`subPackage-${tpk.id}`} label={tpk.runnableUnit}/>
                                 )
-                            }
+                            }                    
                         </div>
+                        
                         </div>
                     ))
                 }

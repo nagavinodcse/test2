@@ -473,7 +473,7 @@ class Review extends Component {
                                 <ul>
                                     <li>Postmortem Debugging
                                         : {parent.settings.postmortem_debugging ? 'Selected' : 'Not Selected'}</li>
-                                    <li>Gflag : {parent.settings.gflag ? 'selected' : 'not selected'}</li>
+                                    <li>Gflag : {parent.settings.gflag ? 'selected' : 'Not selected'}</li>
                                     {parent.settings.gflag ? (<li>Browsers : {parent.browsers.join(',')}</li>) : null}
                                 </ul>
                             </Card.Body>
